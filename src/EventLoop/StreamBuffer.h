@@ -89,37 +89,30 @@ class StreamBuffer {
     write_pos_ = DefaultPrependable;
   }
 
-  inline void discard(size_t len){
-    if(len>=readable())
-    {
+  inline void discard(size_t len) {
+    if (len >= readable()) {
       discard_all();
     }
-    else
-    {
-      read_pos_+=len;
+    else {
+      read_pos_ += len;
     }
   }
 
   inline void discard(size_t position, size_t len) {
-    assert(position<readable());
-    if (position >=readable()) {
+    if (position == 0) {
+      discard(len);
+    }
+    else if (position + len < readable()) {
+      memmove(peek() + position, peek() + position + len, readable() - position - len);
+      write_pos_ -= len;
+    }
+    else if (position <= readable()) {
+      write_pos_ = read_pos_ + position;
       return;
     }
-    else if (position + len >=readable())
-    {
-      write_pos_ = read_pos_ + position;
-    }
-    else   // if (position+len<readable());
-    {
-      if (position == 0)
-      {
-        read_pos_ += len;
-      }
-      else
-      {
-        memmove(peek() + position, peek() + position + len, readable() - position - len);
-        write_pos_ -= len;
-      }
+    else {
+      assert(true); //if come here ,means  position > readable() ;
+      return;
     }
   }
 
@@ -308,7 +301,7 @@ class StreamBuffer {
     assert(capacity_ >= write_pos_);
     assert(write_pos_ >= read_pos_);
     if (writeable() < len) {
-        ensure_append_size_with_memory_operator(len);
+      ensure_append_size_with_memory_operator(len);
     }
   }
 
