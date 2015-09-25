@@ -25,8 +25,10 @@ static void listen_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
 }
 
 int main() {
-  int fd = create_tcp_listen(8000, 1);
+  int fd_8000 = create_tcp_listen(8000, 1);
+  int fd_9000=  create_tcp_listen(9000,1);
   EventLoop loop;
-  loop.add_channel(fd, -1, listen_cb);
+  loop.add_channel(fd_8000, -1, listen_cb);
+  loop.add_channel(fd_9000, -1, listen_cb);
   loop.start();
 }

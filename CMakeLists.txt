@@ -18,4 +18,4 @@ set(SOURCE_FILES
         src/main.cpp
 )
 
-add_executable(MyProxy ${SOURCE_FILES})
+add_executable(EventLoop ${SOURCE_FILES})

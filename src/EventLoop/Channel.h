@@ -15,17 +15,11 @@
 #include "TimerWheel.h"
 
 class Channel {
- public:
-  friend class EventLoop;
-
-  static inline ChannelId make_channel_id() {
-    static ChannelId id = 1;
-    return __sync_fetch_and_add(&id, 1);
-  }
+ friend class EventLoop;
 
  public:
-  std::function<void(void *context)> delete_context;
   void *context;
+  std::function<void(void *context)> delete_context;
 
   ~Channel() {
     if (context != nullptr && delete_context != nullptr) {
@@ -69,6 +63,11 @@ class Channel {
   void send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len);
 
  private:
+  static inline ChannelId make_channel_id() {
+    static ChannelId id = 1;
+    return __sync_fetch_and_add(&id, 1);
+  }
+
   Channel(int fd,
           ssize_t timeout,
           std::unordered_map<ChannelId, ChannelEvent> &event_map,
