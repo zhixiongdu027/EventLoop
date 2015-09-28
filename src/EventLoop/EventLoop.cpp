@@ -34,8 +34,9 @@ ChannelPtr &EventLoop::add_channel(int fd, ssize_t timeout, ChannelCallback io_e
     timer_wheel_.regist(ptr->id(), static_cast<size_t>(ptr->will_add_live_time_));
   }
 
-  channel_map_[ptr->id()] = ptr;
-  return channel_map_[ptr->id()];
+  ChannelId id=ptr->id();
+  channel_map_[id]=std::move(ptr);
+  return channel_map_[id];
 }
 
 int EventLoop::create_timer_fd() {
@@ -73,8 +74,8 @@ int EventLoop::add_timer_channel() {
   if (epoll_ctl(epoll_, EPOLL_CTL_ADD, timer_channel->fd(), &reg_event_) < 0) {
     return -1;
   }
-
-  channel_map_[timer_channel->id()] = timer_channel;
+  ChannelId id=timer_channel->id();
+  channel_map_[id]=std::move(timer_channel);
   return 0;
 }
 

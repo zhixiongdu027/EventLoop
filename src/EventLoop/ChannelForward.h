@@ -15,7 +15,7 @@ class Channel;
 typedef uint32_t ChannelEvent;
 typedef uint32_t ChannelTodo;
 typedef uint32_t ChannelId;
-typedef std::shared_ptr<Channel> ChannelPtr;
+typedef std::unique_ptr<Channel> ChannelPtr;
 typedef std::function<void(EventLoop *, ChannelPtr &, ChannelEvent)> ChannelCallback;
 
 const ChannelTodo TODO_REGO = 1lu << 30;
