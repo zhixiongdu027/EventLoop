@@ -203,6 +203,5 @@ EventLoop::~EventLoop() {
   channel_event_map_.clear();
   channel_todo_map_.clear();
   channel_map_.clear();
-  close(timer_);
   close(epoll_);
 }
