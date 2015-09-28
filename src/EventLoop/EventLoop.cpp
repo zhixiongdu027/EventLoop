@@ -55,12 +55,16 @@ int EventLoop::add_timer_channel() {
     return -1;
   }
 
-  timer_channel->event_cb_ = [this](EventLoop *loop, const ChannelPtr &channel_ptr, ChannelEvent) {
+  timer_channel->event_cb_ = [this](EventLoop *loop, const ChannelPtr &channel_ptr, ChannelEvent event) {
     uint64_t times;
-    if (read(channel_ptr->fd(), &times, sizeof(uint64_t)) != sizeof(uint64_t)) {
-      loop->stop();
+    if (event & EVENT_IN) {
+      if (read(channel_ptr->fd(), &times, sizeof(uint64_t)) != sizeof(uint64_t)) {
+        loop->stop();
+      }
+      timer_wheel_.tick(channel_ptr->channel_event_map_);
+      return;
     }
-    timer_wheel_.tick(channel_ptr->channel_event_map_);
+    loop->stop();
   };
 
   reg_event_.data.u32 = timer_channel->id();

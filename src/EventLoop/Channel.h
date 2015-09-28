@@ -71,7 +71,7 @@ class Channel {
   Channel(int fd,
           ssize_t timeout,
           std::unordered_map<ChannelId, ChannelEvent> &event_map,
-          std::unordered_map<ChannelId, ChannelTodo> &todo_map)
+          std::unordered_map<ChannelId, ChannelTodo>  &todo_map)
       : context(nullptr), id_(make_channel_id()), fd_(fd), will_add_live_time_(timeout), connected_(true),
         channel_event_map_(event_map), channel_todo_map_(todo_map) {
   }
