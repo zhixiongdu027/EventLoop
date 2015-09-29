@@ -1,6 +1,7 @@
-//
-// Created by yang on 6/30/15.
-//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+
+// Author: adugeek
 
 #ifndef EVENTLOOP_CHANNELFORWARD_H
 #define EVENTLOOP_CHANNELFORWARD_H
