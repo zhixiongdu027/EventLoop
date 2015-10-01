@@ -19,7 +19,7 @@ static void client_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
 
 static void listen_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
   if (events & EVENT_IN) {
-    int nfd = accept(ptr->fd(), NULL, NULL);
+    int nfd = accept(ptr->fd(), nullptr, nullptr);
     loop->add_channel(nfd, 1, client_cb);
   }
 }

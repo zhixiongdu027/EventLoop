@@ -37,7 +37,7 @@ class Channel {
   }
 
   inline int recv() {
-    return readBuffer_.read_fd(fd_, NULL);
+    return readBuffer_.read_fd(fd_, nullptr);
   }
 
   inline void add_live_time(size_t seconds) {

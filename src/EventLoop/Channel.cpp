@@ -6,9 +6,9 @@
 #include "Channel.h"
 
 void Channel::send(const void *data, size_t len, bool is_noblock_fd) {
-  assert(data != NULL && connected_);
+  assert(data != nullptr && connected_);
   if (is_noblock_fd) {
-    StreamBuffer::IO_RES io_res = writeBuffer_.write_fd(fd(), data, len, NULL);
+    StreamBuffer::IO_RES io_res = writeBuffer_.write_fd(fd(), data, len, nullptr);
     if (io_res == StreamBuffer::OK) {
       return;
     }
@@ -26,7 +26,7 @@ void Channel::send(const void *data, size_t len, bool is_noblock_fd) {
 }
 
 void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len) {
-  assert(data != NULL);
+  assert(data != nullptr);
   if (!connected_) {
     writeBuffer_.append(data, len);
     return;
@@ -41,7 +41,7 @@ void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr,
   msghdr msg;
   memset(&msg, 0, sizeof(msghdr));
   msg.msg_name = (void *) addr;
-  msg.msg_namelen = addr_len == NULL ? 0 : *addr_len;
+  msg.msg_namelen = addr_len == nullptr ? 0 : *addr_len;
   msg.msg_iov = &vec[0];
   msg.msg_iovlen = 2;
 

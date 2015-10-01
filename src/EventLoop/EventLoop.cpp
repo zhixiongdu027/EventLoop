@@ -52,7 +52,7 @@ int EventLoop::create_timer_fd() {
 
 int EventLoop::add_timer_channel() {
   ChannelPtr timer_channel(new Channel(timer_, -1, channel_event_map_, channel_todo_map_));
-  if (timer_channel == NULL) {
+  if (timer_channel == nullptr) {
     return -1;
   }
 
@@ -140,7 +140,7 @@ void EventLoop::handle_todo() {
         }
       }
       if (ptr->connected_) {
-        StreamBuffer::IO_RES res = ptr->writeBuffer_.write_fd(ptr->fd(), NULL);
+        StreamBuffer::IO_RES res = ptr->writeBuffer_.write_fd(ptr->fd(), nullptr);
         if (res == StreamBuffer::OK) {
           assert(ptr->writeBuffer_.empty());
           reg_event_.events = EPOLLIN;

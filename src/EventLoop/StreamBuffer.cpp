@@ -162,7 +162,7 @@ StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, ssize_t *actual_write) {
 }
 
 StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, const void *data, size_t len, ssize_t *actual_write) {
-  assert(data != NULL);
+  assert(data != nullptr);
   iovec vec[2];
   vec[0].iov_base = peek();
   vec[0].iov_len = readable();
