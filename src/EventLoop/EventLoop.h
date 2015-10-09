@@ -39,6 +39,7 @@ class EventLoop {
 
  private:
   EventLoop(const EventLoop &) = delete;
+  EventLoop(EventLoop &&rhs) = delete;
   EventLoop &operator=(const EventLoop &) = delete;
 
   enum INIT_STATUS {
@@ -71,7 +72,7 @@ class EventLoop {
 
   int add_timer_channel();
 
-  inline bool unlawful_fd(int fd) {
+  inline bool unlawful_fd(int fd) const {
     return (fd < 0 || fd == epoll_ || fd == timer_);
   }
 

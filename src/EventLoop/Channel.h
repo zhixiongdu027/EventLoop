@@ -21,13 +21,6 @@ class Channel {
   void *context;
   std::function<void(void *context)> delete_context;
 
-  ~Channel() {
-    if (context != nullptr && delete_context != nullptr) {
-      delete_context(context);
-    }
-    close(fd_);
-  };
-
   inline int fd() const {
     return fd_;
   }
@@ -62,6 +55,13 @@ class Channel {
 
   void send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len);
 
+  ~Channel() {
+    if (context != nullptr && delete_context != nullptr) {
+      delete_context(context);
+    }
+    close(fd_);
+  };
+
  private:
   static inline ChannelId make_channel_id() {
     static ChannelId id = 1;
@@ -75,6 +75,11 @@ class Channel {
       : context(nullptr), id_(make_channel_id()), fd_(fd), will_add_live_time_(timeout), connected_(true),
         channel_event_map_(event_map), channel_todo_map_(todo_map) {
   }
+
+  Channel(const Channel &rhs) = delete;
+  Channel(Channel &&rhs) = delete;
+  Channel &operator=(const Channel &rhs) = delete;
+
   const ChannelId id_;
   const int fd_;
 
