@@ -19,43 +19,43 @@ class Channel {
 
  public:
   void *context;
-  std::function<void(void *context)> delete_context;
+  std::function<void(void *)> delete_context;
 
-  inline int fd() const {
+  inline int fd() const noexcept {
     return fd_;
   }
 
-  inline ChannelId id() const {
+  inline ChannelId id() const noexcept {
     return id_;
   }
 
-  inline int recv() {
+  inline int recv() noexcept {
     return readBuffer_.read_fd(fd_, nullptr);
   }
 
-  inline void add_live_time(size_t seconds) {
+  inline void add_live_time(size_t seconds) noexcept {
     will_add_live_time_ = (int) seconds;
   }
 
-  inline void shutdown() {
+  inline void shutdown() noexcept {
     channel_todo_map_[id_] |= TODO_SHUTDOWN;
   }
 
-  inline void erase() {
+  inline void erase() noexcept {
     channel_todo_map_[id_] |= TODO_ERASE;
   }
 
-  inline StreamBuffer *get_read_buffer() {
+  inline StreamBuffer *get_read_buffer() noexcept {
     return &readBuffer_;
   }
 
-  inline void set_event_cb(ChannelCallback &cb) { event_cb_ = cb; }
+  inline void set_event_cb(ChannelCallback &cb) noexcept { event_cb_ = cb; }
 
-  void send(const void *data, size_t len, bool is_noblock_fd);
+  void send(const void *data, size_t len, bool is_noblock_fd) noexcept;
 
-  void send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len);
+  void send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len) noexcept;
 
-  ~Channel() {
+  ~Channel() noexcept {
     if (context != nullptr && delete_context != nullptr) {
       delete_context(context);
     }
@@ -63,7 +63,7 @@ class Channel {
   };
 
  private:
-  static inline ChannelId make_channel_id() {
+  static inline ChannelId make_channel_id() noexcept {
     static ChannelId id = 1;
     return __sync_fetch_and_add(&id, 1);
   }

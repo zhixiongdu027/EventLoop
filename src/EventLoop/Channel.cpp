@@ -5,7 +5,7 @@
 
 #include "Channel.h"
 
-void Channel::send(const void *data, size_t len, bool is_noblock_fd) {
+void Channel::send(const void *data, size_t len, bool is_noblock_fd) noexcept {
   assert(data != nullptr && connected_);
   if (is_noblock_fd) {
     StreamBuffer::IO_RES io_res = writeBuffer_.write_fd(fd(), data, len, nullptr);
@@ -25,7 +25,7 @@ void Channel::send(const void *data, size_t len, bool is_noblock_fd) {
   }
 }
 
-void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len) {
+void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len) noexcept {
   assert(data != nullptr);
   if (!connected_) {
     writeBuffer_.append(data, len);
