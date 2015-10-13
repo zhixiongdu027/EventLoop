@@ -5,6 +5,7 @@
 
 #include "EventLoop.h"
 #include <sys/timerfd.h>
+#include <iostream>
 
 ChannelPtr EventLoop::null_channel_ptr = ChannelPtr();
 
@@ -62,7 +63,7 @@ int EventLoop::add_timer_channel() {
       if (read(channel_ptr->fd(), &times, sizeof(uint64_t)) != sizeof(uint64_t)) {
         loop->stop();
       }
-      timer_wheel_.tick(channel_ptr->channel_event_map_);
+      timer_wheel_.tick(channel_event_map_);
       return;
     }
     loop->stop();
@@ -84,7 +85,7 @@ void EventLoop::handle_cb() noexcept {
   while (iterator != channel_event_map_.end()) {
     const ChannelId channel_id = iterator->first;
     ChannelPtr &channel_ptr = channel_map_[channel_id];
-
+    std::cout << __FILE__ << "______" << __LINE__ << std::endl;
     if (channel_ptr == nullptr) {
       channel_map_.erase(channel_id);
       channel_event_map_.erase(iterator++);
@@ -95,6 +96,7 @@ void EventLoop::handle_cb() noexcept {
     assert(channel_event != 0);
 
     const uint32_t io_event = channel_event & 0x0000ffff;
+
     channel_ptr->will_add_live_time_ = -1;
     channel_ptr->event_cb_(this, channel_ptr, io_event);
     if (channel_ptr->will_add_live_time_ >= 0) {
@@ -102,10 +104,15 @@ void EventLoop::handle_cb() noexcept {
     }
 
     channel_event ^= io_event;
+    std::cout << "io_event: " << io_event << std::endl;
+    if (channel_event & TODO_ERASE) {
+      channel_map_.erase(channel_id);
+      channel_event_map_.erase(iterator++);
+      continue;
+    }
 
     reg_event_.data.u32 = channel_id;
     reg_event_.events = 0;
-
     if (channel_event & TODO_REGO) {
       reg_event_.events |= (EPOLLIN | EPOLLOUT);
       channel_event ^= TODO_REGO;
@@ -140,12 +147,14 @@ void EventLoop::handle_cb() noexcept {
       }
       channel_event ^= TODO_OUTPUT;
     }
+
     if (channel_event & TODO_SHUTDOWN) {
       if (channel_ptr->writeBuffer_.empty()) {
         ::shutdown(channel_ptr->fd(), SHUT_RDWR);
         channel_event ^= TODO_SHUTDOWN;
       }
     }
+
     if (reg_event_.events != 0 && epoll_ctl(epoll_, EPOLL_CTL_MOD, channel_ptr->fd(), &reg_event_) < 0) {
       channel_event_map_[channel_id] |= EVENT_EPOLLERR;
     }
