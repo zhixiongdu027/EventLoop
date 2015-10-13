@@ -38,11 +38,11 @@ class Channel {
   }
 
   inline void shutdown() noexcept {
-    channel_todo_map_[id_] |= TODO_SHUTDOWN;
+    channel_event_map_[id_] |= TODO_SHUTDOWN;
   }
 
   inline void erase() noexcept {
-    channel_todo_map_[id_] |= TODO_ERASE;
+    channel_event_map_[id_] |= TODO_ERASE;
   }
 
   inline StreamBuffer *get_read_buffer() noexcept {
@@ -70,10 +70,9 @@ class Channel {
 
   Channel(int fd,
           ssize_t timeout,
-          std::unordered_map<ChannelId, ChannelEvent> &event_map,
-          std::unordered_map<ChannelId, ChannelTodo>  &todo_map)
+          std::unordered_map<ChannelId, ChannelEvent> &event_map)
       : context(nullptr), id_(make_channel_id()), fd_(fd), will_add_live_time_(timeout), connected_(true),
-        channel_event_map_(event_map), channel_todo_map_(todo_map) {
+        channel_event_map_(event_map) {
   }
 
   Channel(const Channel &rhs) = delete;
@@ -93,7 +92,6 @@ class Channel {
   StreamBuffer writeBuffer_;
 
   std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
-  std::unordered_map<ChannelId, ChannelTodo> &channel_todo_map_;
 };
 
 #endif // EVENTLOOP_CHANNEL_H

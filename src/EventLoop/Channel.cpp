@@ -13,7 +13,7 @@ void Channel::send(const void *data, size_t len, bool is_noblock_fd) noexcept {
       return;
     }
     else if (io_res == StreamBuffer::AGAIN) {
-      channel_todo_map_[id()] |= TODO_REGO;
+      channel_event_map_[id()] |= TODO_REGO;
     }
     else {
       channel_event_map_[id()] |= EVENT_SENDERR;
@@ -21,7 +21,7 @@ void Channel::send(const void *data, size_t len, bool is_noblock_fd) noexcept {
   }
   else {
     writeBuffer_.append(data, len);
-    channel_todo_map_[id()] |= TODO_REGO;
+    channel_event_map_[id()] |= TODO_REGO;
   }
 }
 
@@ -55,7 +55,7 @@ void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr,
       }
       else if (errno == EWOULDBLOCK || errno == EAGAIN) {
         writeBuffer_.append(data, len);
-        channel_todo_map_[id()] |= TODO_REGO;
+        channel_event_map_[id()] |= TODO_REGO;
       }
       else {
         channel_event_map_[id()] |= EVENT_SENDERR;
@@ -69,7 +69,7 @@ void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr,
     return;
   }
   else {
-    channel_todo_map_[id()] |= TODO_REGO;
+    channel_event_map_[id()] |= TODO_REGO;
     if (writeBuffer_.readable() >= last_write) {
       writeBuffer_.discard(static_cast<size_t>(last_write));
       writeBuffer_.append(data, len);

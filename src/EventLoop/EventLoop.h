@@ -18,19 +18,19 @@ class EventLoop {
   EventLoop() : context(nullptr), init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), timer_wheel_(300) {
   }
 
-  ~EventLoop();
+  ~EventLoop() noexcept;
 
   ChannelPtr &add_channel(int fd, ssize_t timeout, ChannelCallback io_event_cb);
 
-  inline void start() {
+  inline void start() noexcept {
     loop();
   }
 
-  inline void stop() {
+  inline void stop() noexcept {
     quit_ = true;
   }
 
-  inline ChannelPtr &get_channel(ChannelId id) {
+  inline ChannelPtr &get_channel(const ChannelId id) noexcept {
     if (channel_map_.find(id) != channel_map_.end()) {
       return channel_map_[id];
     }
@@ -58,43 +58,34 @@ class EventLoop {
     }
   }
 
-  void loop();
+  void loop() noexcept;
 
-  void handle_cb();
+  void handle_cb() noexcept;
 
-  void handle_todo();
-
-  inline int create_epoll_fd() {
+  inline int create_epoll_fd() noexcept {
     return epoll_ = epoll_create(1);
   }
 
-  int create_timer_fd();
+  int create_timer_fd() noexcept;
 
   int add_timer_channel();
 
-  inline bool unlawful_fd(int fd) const {
+  inline bool unlawful_fd(int fd) const noexcept {
     return (fd < 0 || fd == epoll_ || fd == timer_);
   }
 
  public:
   void *context;
-  std::function<void(void *context)> delete_context;
-
+  std::function<void(void *)> delete_context;
  private:
   INIT_STATUS init_status_;
   int epoll_;
   int timer_;
-
   bool quit_;
-
   std::unordered_map<ChannelId, ChannelPtr> channel_map_;
   std::unordered_map<ChannelId, ChannelEvent> channel_event_map_;
-  std::unordered_map<ChannelId, ChannelTodo> channel_todo_map_;
-
   TimerWheel timer_wheel_;
-
   epoll_event reg_event_;
-
   static ChannelPtr null_channel_ptr;
 };
 
