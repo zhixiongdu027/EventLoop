@@ -102,7 +102,7 @@ void StreamBuffer::replace(size_t position, size_t replace_len, const void *data
   }
 }
 
-StreamBuffer::IO_RES StreamBuffer::read_fd(int fd, ssize_t *actual_read) {
+StreamBuffer::IO_RES StreamBuffer::read_fd(int fd, ssize_t *actual_read) noexcept {
   static const size_t EXTRA_BUFF_SIZE = 65535;
   char extra_buff[EXTRA_BUFF_SIZE];
   struct iovec vec[2];
@@ -141,7 +141,7 @@ StreamBuffer::IO_RES StreamBuffer::read_fd(int fd, ssize_t *actual_read) {
   return OK;
 }
 
-StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, ssize_t *actual_write) {
+StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, ssize_t *actual_write) noexcept {
   ssize_t last_write;
   ssize_t *last_write_ptr = &last_write;
   if (actual_write != nullptr) {
@@ -161,7 +161,7 @@ StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, ssize_t *actual_write) {
   return static_cast<size_t>(*last_write_ptr) == readable() ? OK : AGAIN;
 }
 
-StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, const void *data, size_t len, ssize_t *actual_write) {
+StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, const void *data, size_t len, ssize_t *actual_write) noexcept {
   assert(data != nullptr);
   iovec vec[2];
   vec[0].iov_base = peek();
