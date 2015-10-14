@@ -47,34 +47,44 @@ void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr,
 
   ssize_t last_write;
 
-  do {
+  do
+  {
     last_write = ::sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
-    if (last_write < 0) {
+    if (last_write < 0)
+    {
       if (errno == EINTR) {
         continue;
       }
-      else if (errno == EWOULDBLOCK || errno == EAGAIN) {
+      else if (errno == EAGAIN)
+      {
         writeBuffer_.append(data, len);
         channel_event_map_[id()] |= TODO_REGO;
       }
-      else {
+      else
+      {
         channel_event_map_[id()] |= EVENT_SENDERR;
       }
+      return;
     }
   } while (false);
 
-  if (writeBuffer_.readable() + len == last_write) {
+  assert(last_write>=0);
+  if (last_write == writeBuffer_.readable() + len)
+  {
     writeBuffer_.discard_all();
     // nothing;     don't call back when send_to_socket success;
     return;
   }
-  else {
+  else
+  {
     channel_event_map_[id()] |= TODO_REGO;
-    if (writeBuffer_.readable() >= last_write) {
+    if (last_write <= writeBuffer_.readable())
+    {
       writeBuffer_.discard(static_cast<size_t>(last_write));
       writeBuffer_.append(data, len);
     }
-    else {
+    else
+    {
       size_t used_data = last_write - writeBuffer_.readable();
       writeBuffer_.discard_all();
       writeBuffer_.append(static_cast<const char *>(data) + used_data, len - used_data);

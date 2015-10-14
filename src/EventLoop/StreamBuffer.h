@@ -90,7 +90,7 @@ public:
             discard(len);
         }
         else if (position + len < readable()) {
-            memmove(peek() + position, peek() + position + len, readable() - position - len);
+            memmove(peek(position) , peek(position+len), readable() - position - len);
             write_pos_ -= len;
         }
         else if (position <= readable()) {
