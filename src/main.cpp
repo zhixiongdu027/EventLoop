@@ -25,6 +25,17 @@ static void listen_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
 }
 
 int main() {
+
+  StreamBuffer test(10);
+  test.append("love",4);
+
+  StreamBuffer test_1;
+  std::swap(test_1 ,test);
+  StreamBuffer test_2=std::move(test_1);
+
+  write(1 ,test_2.peek() ,test_2.readable());
+
+
   int fd_8000 = create_tcp_listen(8000, 1);
   int fd_9000=  create_tcp_listen(9000,1);
   EventLoop loop;

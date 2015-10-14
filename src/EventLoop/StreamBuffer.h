@@ -32,70 +32,19 @@ public:
     };
 
 public:
-    StreamBuffer(size_t default_size = DefaultCapacity) {
-        memory_ = new char[default_size + DefaultPrependable];
-        read_pos_ = DefaultPrependable;
-        write_pos_ = DefaultPrependable;
-        capacity_ = default_size + DefaultPrependable;
-    }
+    StreamBuffer(size_t default_size = DefaultCapacity);
 
-    StreamBuffer(const StreamBuffer &rhs) {
-        capacity_ = rhs.capacity_;
-        memory_ = new char[capacity_];
-        if (rhs.read_pos_ < DefaultPrependable) {
-            read_pos_ = rhs.read_pos_;
-        }
-        else {
-            read_pos_ = DefaultPrependable;
-        }
-        memcpy(peek(), rhs.peek(), rhs.readable());
-        write_pos_ = read_pos_ + rhs.readable();
-    }
+    StreamBuffer(const StreamBuffer &rhs);
 
-    StreamBuffer &operator=(const StreamBuffer &rhs) {
-        if (this != &rhs) {
-            delete[] memory_;
-            capacity_ = rhs.capacity_;
-            read_pos_ = rhs.read_pos_;
-            write_pos_ = rhs.write_pos_;
-            memory_ = new char[capacity_];
-            memcpy(memory_, rhs.memory_, rhs.capacity_);
-        }
-        return *this;
-    };
+    StreamBuffer &operator=(const StreamBuffer &rhs);;
 
-    StreamBuffer(StreamBuffer &&rhs) noexcept
-            : memory_(rhs.memory_), capacity_(rhs.capacity_), read_pos_(rhs.read_pos_), write_pos_(rhs.write_pos_) {
-        rhs.memory_ = nullptr;
-        rhs.capacity_ = 0;
-        rhs.read_pos_ = 0;
-        rhs.write_pos_ = 0;
-    }
+    StreamBuffer(StreamBuffer &&rhs);
 
-    StreamBuffer &operator=(StreamBuffer &&rhs) noexcept
-    {
-        if(this!=&rhs)
-        {
-            delete []memory_;
-            memory_ = rhs.memory_;
-            capacity_ = rhs.capacity_;
-            read_pos_ = rhs.read_pos_;
-            write_pos_ = rhs.write_pos_;
+    StreamBuffer &operator=(StreamBuffer &&rhs);;
 
-            rhs.memory_ = nullptr;
-            rhs.capacity_ = 0;
-            rhs.read_pos_ = 0;
-            rhs.write_pos_ = 0;
-        }
-        return *this;
-    };
+    ~StreamBuffer();
 
-    ~StreamBuffer()  noexcept {
-        delete[] memory_;
-        memory_ = nullptr;
-    }
-
-    inline void swap(StreamBuffer &rhs) noexcept {
+    inline void swap(StreamBuffer &rhs) {
         std::swap(memory_, rhs.memory_);
         std::swap(capacity_, rhs.capacity_);
         std::swap(read_pos_, rhs.read_pos_);
@@ -352,7 +301,7 @@ private:
 
 namespace std {
     template<>
-    void swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept;
+    void swap(StreamBuffer &lhs, StreamBuffer &rhs);
 };
 
 #endif  // STREAMBUFFER_H
