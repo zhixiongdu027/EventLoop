@@ -5,7 +5,6 @@
 
 #include "EventLoop.h"
 #include <sys/timerfd.h>
-#include <iostream>
 
 ChannelPtr EventLoop::null_channel_ptr = ChannelPtr();
 
@@ -85,7 +84,6 @@ void EventLoop::handle_cb() noexcept {
   while (iterator != channel_event_map_.end()) {
     const ChannelId channel_id = iterator->first;
     ChannelPtr &channel_ptr = channel_map_[channel_id];
-    std::cout << __FILE__ << "______" << __LINE__ << std::endl;
     if (channel_ptr == nullptr) {
       channel_map_.erase(channel_id);
       channel_event_map_.erase(iterator++);
@@ -104,7 +102,6 @@ void EventLoop::handle_cb() noexcept {
     }
 
     channel_event ^= io_event;
-    std::cout << "io_event: " << io_event << std::endl;
     if (channel_event & TODO_ERASE) {
       channel_map_.erase(channel_id);
       channel_event_map_.erase(iterator++);
