@@ -14,15 +14,14 @@ class EventLoop;
 class Channel;
 
 typedef uint32_t ChannelEvent;
-typedef uint32_t ChannelTodo;
 typedef uint32_t ChannelId;
 typedef std::unique_ptr<Channel> ChannelPtr;
 typedef std::function<void(EventLoop *, ChannelPtr &, ChannelEvent)> ChannelCallback;
 
-const ChannelTodo TODO_REGO = 1lu << 30;
-const ChannelTodo TODO_SHUTDOWN = 1lu << 29;
-const ChannelTodo TODO_ERASE = 1lu << 28;
-const ChannelTodo TODO_OUTPUT = 1lu << 27;
+const ChannelEvent TODO_REGO = 1lu << 30;
+const ChannelEvent TODO_SHUTDOWN = 1lu << 29;
+const ChannelEvent TODO_ERASE = 1lu << 28;
+const ChannelEvent TODO_OUTPUT = 1lu << 27;
 
 const ChannelEvent EVENT_IN = 1lu << 15;
 const ChannelEvent EVENT_HUP = 1lu << 14;
