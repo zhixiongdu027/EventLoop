@@ -136,6 +136,7 @@ void EventLoop::handle_cb() noexcept {
         }
         else if (res == StreamBuffer::AGAIN) {
           reg_event_.events = EPOLLIN | EPOLLOUT;
+
         }
         else {
           reg_event_.events = 0;
