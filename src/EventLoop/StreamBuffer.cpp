@@ -205,6 +205,6 @@ StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, const void *data, size_t len
 }
 
 template<>
-void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) {
+void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept{
   lhs.swap(rhs);
 }
