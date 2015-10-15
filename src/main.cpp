@@ -10,10 +10,7 @@ static void client_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
     }
     StreamBuffer *buffer = ptr->get_read_buffer();
     ptr->send_to_socket(buffer->peek(), buffer->readable(), nullptr, nullptr);
-    ptr->add_live_time(3);
-  }
-  else if (events & EVENT_TIMEOVER) {
-    ptr->erase();
+    ptr->shutdown();
   }
 }
 
