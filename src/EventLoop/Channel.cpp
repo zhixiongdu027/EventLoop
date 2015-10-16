@@ -67,15 +67,15 @@ void Channel::send_to_socket(const void *data, size_t len, const sockaddr *addr,
     } while (false);
 
     assert(last_write >= 0);
-    if (last_write == writeBuffer_.readable() + len) {
+    if (static_cast<size_t>(last_write) == writeBuffer_.readable() + len) {
         writeBuffer_.discard_all();
         // nothing;     don't call back when send_to_socket success;
         return;
     }
     else {
         channel_event_map_[id()] |= TODO_REGO;
-        if (last_write <= writeBuffer_.readable()) {
-            writeBuffer_.discard(static_cast<size_t>(last_write));
+        if (static_cast<size_t>(last_write) <= writeBuffer_.readable()) {
+            writeBuffer_.discard(last_write);
             writeBuffer_.append(data, len);
         }
         else {
