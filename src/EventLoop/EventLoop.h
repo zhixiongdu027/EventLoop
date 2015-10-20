@@ -20,7 +20,7 @@ class EventLoop {
 
   ~EventLoop() noexcept;
 
-  ChannelPtr &add_channel(int fd, ssize_t timeout, ChannelCallback io_event_cb);
+  ChannelPtr &add_channel(int fd, ssize_t timeout, bool is_socket, bool is_nonblock, ChannelCallback io_event_cb);
 
   inline void start() noexcept {
     loop();

@@ -17,19 +17,12 @@
 /// |                   |                  |                  |
 /// +-------------------+------------------+------------------+
 /// |                   |                  |                  |
-///memory       <=   read_pos   <=     write_pos    <=   capacity
+///memory       <=   peek_pos   <=     append_pos    <=   capacity
 
 class StreamBuffer {
 public:
     static size_t DefaultPrependable;
     static size_t DefaultCapacity;
-
-    enum IO_RES {
-        OTHER = -1,
-        ENDOF = -2,
-        OK = 0,
-        AGAIN = 1
-    };
 
 public:
     StreamBuffer(size_t default_size = DefaultCapacity);
@@ -47,8 +40,8 @@ public:
     inline void swap(StreamBuffer &rhs) {
         std::swap(memory_, rhs.memory_);
         std::swap(capacity_, rhs.capacity_);
-        std::swap(read_pos_, rhs.read_pos_);
-        std::swap(write_pos_, rhs.write_pos_);
+        std::swap(peek_pos_, rhs.peek_pos_);
+        std::swap(append_pos_, rhs.append_pos_);
     }
 
     inline const char *memory() const noexcept { return memory_; }
@@ -61,19 +54,19 @@ public:
         }
     }
 
-    inline size_t prependable() const noexcept { return read_pos_; }
+    inline size_t prependable() const noexcept { return peek_pos_; }
 
-    inline size_t readable() const noexcept { return write_pos_ - read_pos_; }
+    inline size_t readable() const noexcept { return append_pos_ - peek_pos_; }
 
-    inline size_t writeable() const noexcept { return capacity_ - write_pos_; }
+    inline size_t writeable() const noexcept { return capacity_ - append_pos_; }
 
     bool empty() const noexcept {
         return readable() == 0;
     }
 
     inline void discard_all() noexcept {
-        read_pos_ = DefaultPrependable;
-        write_pos_ = DefaultPrependable;
+        peek_pos_ = DefaultPrependable;
+        append_pos_ = DefaultPrependable;
     }
 
     inline void discard(size_t len) noexcept {
@@ -81,7 +74,7 @@ public:
             discard_all();
         }
         else {
-            read_pos_ += len;
+            peek_pos_ += len;
         }
     }
 
@@ -91,10 +84,10 @@ public:
         }
         else if (position + len < readable()) {
             memmove(peek(position) , peek(position+len), readable() - position - len);
-            write_pos_ -= len;
+            append_pos_ -= len;
         }
         else if (position <= readable()) {
-            write_pos_ = read_pos_ + position;
+            append_pos_ = peek_pos_ + position;
             return;
         }
         else {
@@ -105,7 +98,7 @@ public:
 
     inline void prepend(const void *data, size_t len) noexcept {
         assert(len <= prependable());
-        read_pos_ -= len;
+        peek_pos_ -= len;
         memcpy(peek(), data, len);
     }
 
@@ -134,14 +127,14 @@ public:
 
     inline char *peek(size_t position = 0) noexcept {
         if (position < readable()) {
-            return memory() + read_pos_ + position;
+            return memory() + peek_pos_ + position;
         }
         return nullptr;
     }
 
     inline const char *peek(size_t position = 0) const noexcept {
         if (position < readable()) {
-            return memory() + read_pos_ + position;
+            return memory() + peek_pos_ + position;
         }
         return nullptr;
     }
@@ -207,7 +200,7 @@ public:
     inline void append(const void *data, size_t len) {
         ensure_append_size(len);
         memcpy(write_pos(), data, len);
-        write_pos_ += len;
+        append_pos_ += len;
     }
 
     inline void append_uint8(uint8_t rhs) {
@@ -271,20 +264,24 @@ public:
         replace(position, replace_len, &val, sizeof(uint64_t));
     }
 
-    IO_RES read_fd(int fd, ssize_t *actual_read) noexcept;
+    ssize_t read(int fd, size_t len) noexcept;
 
-    IO_RES write_fd(int fd, ssize_t *actual_write) noexcept;
+    ssize_t write(int fd ,size_t len) noexcept;
 
-    IO_RES write_fd(int fd, const void *data, size_t len, ssize_t *actual_write) noexcept;
+    ssize_t write(int fd, const void *data, size_t len) noexcept;
+
+    ssize_t read_some(int fd) noexcept;
+
+    ssize_t write_some(int fd) noexcept;
 
 private:
     inline char *memory() noexcept { return memory_; }
 
-    inline void *write_pos() noexcept { return memory() + write_pos_; }
+    inline void *write_pos() noexcept { return memory() + append_pos_; }
 
     inline void ensure_append_size(size_t len) {
-        assert(capacity_ >= write_pos_);
-        assert(write_pos_ >= read_pos_);
+        assert(capacity_ >= append_pos_);
+        assert(append_pos_ >= peek_pos_);
         if (writeable() < len) {
             ensure_append_size_with_memory_operator(len);
         }
@@ -295,8 +292,8 @@ private:
 private:
     char *memory_;
     size_t capacity_;
-    size_t read_pos_;
-    size_t write_pos_;
+    size_t peek_pos_;
+    size_t append_pos_;
 };
 
 namespace std {

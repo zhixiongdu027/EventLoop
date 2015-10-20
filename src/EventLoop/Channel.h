@@ -15,83 +15,98 @@
 #include "TimerWheel.h"
 
 class Channel {
- friend class EventLoop;
+    friend class EventLoop;
 
- public:
-  void *context;
-  std::function<void(void *)> delete_context;
+public:
+    void *context;
+    std::function<void(void *)> delete_context;
 
-  inline int fd() const noexcept {
-    return fd_;
-  }
-
-  inline ChannelId id() const noexcept {
-    return id_;
-  }
-
-  inline int recv() noexcept {
-    return readBuffer_.read_fd(fd_, nullptr);
-  }
-
-  inline void add_live_time(size_t seconds) noexcept {
-    will_add_live_time_ = (int) seconds;
-  }
-
-  inline void shutdown() noexcept {
-    channel_event_map_[id_] |= TODO_SHUTDOWN;
-  }
-
-  inline void erase() noexcept {
-    channel_event_map_[id_] |= TODO_ERASE;
-  }
-
-  inline StreamBuffer *get_read_buffer() noexcept {
-    return &readBuffer_;
-  }
-
-  inline void set_event_cb(ChannelCallback &cb) noexcept { event_cb_ = cb; }
-
-  void send(const void *data, size_t len, bool is_noblock_fd) noexcept;
-
-  void send_to_socket(const void *data, size_t len, const sockaddr *addr, socklen_t *addr_len) noexcept;
-
-  ~Channel() noexcept {
-    if (context != nullptr && delete_context != nullptr) {
-      delete_context(context);
+    inline int fd() const noexcept {
+        return fd_;
     }
-    close(fd_);
-  };
 
- private:
-  static inline ChannelId make_channel_id() noexcept {
-    static ChannelId id = 1;
-    return __sync_fetch_and_add(&id, 1);
-  }
+    inline ChannelId id() const noexcept {
+        return id_;
+    }
 
-  Channel(int fd,
-          ssize_t timeout,
-          std::unordered_map<ChannelId, ChannelEvent> &event_map)
-      : context(nullptr), id_(make_channel_id()), fd_(fd), will_add_live_time_(timeout), connected_(true),
-        channel_event_map_(event_map) {
-  }
+    inline void set_event_cb(ChannelCallback &cb) noexcept {
+        event_cb_ = cb;
+    }
 
-  Channel(const Channel &rhs) = delete;
-  Channel(Channel &&rhs) = delete;
-  Channel &operator=(const Channel &rhs) = delete;
+    inline void set_nonblock(bool is_nonblock) noexcept {
+        is_nonblock_ = is_nonblock;
+    }
 
-  const ChannelId id_;
-  const int fd_;
+    inline StreamBuffer *get_read_buffer() noexcept {
+        return &readBuffer_;
+    }
 
-  ssize_t will_add_live_time_;
+    inline StreamBuffer *get_write_buffer() noexcept {
+        return &writeBuffer_;
+    }
 
-  bool connected_;
+    inline void add_live_time(size_t seconds) noexcept {
+        will_add_live_time_ = (int) seconds;
+    }
 
-  ChannelCallback event_cb_;
+    inline void shutdown() noexcept {
+        channel_event_map_[id_] |= TODO_SHUTDOWN;
+    }
 
-  StreamBuffer readBuffer_;
-  StreamBuffer writeBuffer_;
+    inline void erase() noexcept {
+        channel_event_map_[id_] |= TODO_ERASE;
+    }
 
-  std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
+    int read() noexcept;
+
+    void send() noexcept;
+
+    inline void send(const char *data, size_t len) noexcept {
+        is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
+    }
+
+    ~Channel() noexcept {
+        if (context != nullptr && delete_context != nullptr) {
+            delete_context(context);
+        }
+        close(fd_);
+    };
+
+private:
+    static inline ChannelId make_channel_id() noexcept {
+        static ChannelId id = 1;
+        return __sync_fetch_and_add(&id, 1);
+    }
+
+    Channel(int fd,
+            ssize_t live_time,
+            bool is_socket, std::unordered_map<ChannelId, ChannelEvent> &event_map)
+            : context(nullptr), id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
+              is_connected_(true), is_nonblock_(false), will_add_live_time_(live_time),
+              channel_event_map_(event_map) {
+    }
+
+    Channel(const Channel &rhs) = delete;
+
+    Channel(Channel &&rhs) = delete;
+
+    Channel &operator=(const Channel &rhs) = delete;
+
+    void send_to_normal(const void *data, size_t len) noexcept;
+
+    void send_to_socket(const void *data, size_t len) noexcept;
+
+private:
+    const ChannelId id_;
+    const int fd_;
+    const bool is_socket_;
+    bool is_connected_;
+    bool is_nonblock_;
+    ssize_t will_add_live_time_;
+    std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
+    ChannelCallback event_cb_;
+    StreamBuffer readBuffer_;
+    StreamBuffer writeBuffer_;
 };
 
 #endif // EVENTLOOP_CHANNEL_H

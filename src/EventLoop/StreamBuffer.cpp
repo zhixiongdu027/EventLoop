@@ -3,7 +3,6 @@
 
 // Author: adugeek
 
-#include <errno.h>
 #include <sys/uio.h>
 #include <unistd.h>
 #include "StreamBuffer.h"
@@ -13,30 +12,30 @@ size_t StreamBuffer::DefaultCapacity = 1024;
 
 StreamBuffer::StreamBuffer(size_t default_size) {
     memory_ = new char[default_size + DefaultPrependable];
-    read_pos_ = DefaultPrependable;
-    write_pos_ = DefaultPrependable;
+    peek_pos_ = DefaultPrependable;
+    append_pos_ = DefaultPrependable;
     capacity_ = default_size + DefaultPrependable;
 }
 
 StreamBuffer::StreamBuffer(const StreamBuffer &rhs) {
     capacity_ = rhs.capacity_;
     memory_ = new char[capacity_];
-    if (rhs.read_pos_ < DefaultPrependable) {
-        read_pos_ = rhs.read_pos_;
+    if (rhs.peek_pos_ < DefaultPrependable) {
+        peek_pos_ = rhs.peek_pos_;
     }
     else {
-        read_pos_ = DefaultPrependable;
+        peek_pos_ = DefaultPrependable;
     }
     memcpy(peek(), rhs.peek(), rhs.readable());
-    write_pos_ = read_pos_ + rhs.readable();
+    append_pos_ = peek_pos_ + rhs.readable();
 }
 
 StreamBuffer &StreamBuffer::operator=(const StreamBuffer &rhs) {
     if (this != &rhs) {
         delete[] memory_;
         capacity_ = rhs.capacity_;
-        read_pos_ = rhs.read_pos_;
-        write_pos_ = rhs.write_pos_;
+        peek_pos_ = rhs.peek_pos_;
+        append_pos_ = rhs.append_pos_;
         memory_ = new char[capacity_];
         memcpy(memory_, rhs.memory_, rhs.capacity_);
     }
@@ -44,11 +43,11 @@ StreamBuffer &StreamBuffer::operator=(const StreamBuffer &rhs) {
 }
 
 StreamBuffer::StreamBuffer(StreamBuffer &&rhs)
-        : memory_(rhs.memory_), capacity_(rhs.capacity_), read_pos_(rhs.read_pos_), write_pos_(rhs.write_pos_) {
+        : memory_(rhs.memory_), capacity_(rhs.capacity_), peek_pos_(rhs.peek_pos_), append_pos_(rhs.append_pos_) {
     rhs.memory_ = nullptr;
     rhs.capacity_ = 0;
-    rhs.read_pos_ = 0;
-    rhs.write_pos_ = 0;
+    rhs.peek_pos_ = 0;
+    rhs.append_pos_ = 0;
 }
 
 StreamBuffer &StreamBuffer::operator=(StreamBuffer &&rhs) {
@@ -56,13 +55,13 @@ StreamBuffer &StreamBuffer::operator=(StreamBuffer &&rhs) {
         delete[]memory_;
         memory_ = rhs.memory_;
         capacity_ = rhs.capacity_;
-        read_pos_ = rhs.read_pos_;
-        write_pos_ = rhs.write_pos_;
+        peek_pos_ = rhs.peek_pos_;
+        append_pos_ = rhs.append_pos_;
 
         rhs.memory_ = nullptr;
         rhs.capacity_ = 0;
-        rhs.read_pos_ = 0;
-        rhs.write_pos_ = 0;
+        rhs.peek_pos_ = 0;
+        rhs.append_pos_ = 0;
     }
     return *this;
 }
@@ -73,11 +72,11 @@ StreamBuffer::~StreamBuffer() {
 }
 
 void StreamBuffer::ensure_append_size_with_memory_operator(size_t len) {
-    size_t moveable = (read_pos_ > DefaultPrependable ? read_pos_ - DefaultPrependable : 0);
+    size_t moveable = (peek_pos_ > DefaultPrependable ? peek_pos_ - DefaultPrependable : 0);
     if (moveable + writeable() >= len) {
         ::memmove(memory_ + DefaultPrependable, peek(), readable());
-        read_pos_ -= moveable;
-        write_pos_ -= moveable;
+        peek_pos_ -= moveable;
+        append_pos_ -= moveable;
         return;
     }
 
@@ -89,10 +88,10 @@ void StreamBuffer::ensure_append_size_with_memory_operator(size_t len) {
     memory_ = new_memory_;
     capacity_ = new_capacity;
 
-    ssize_t diff_len = read_pos_ - DefaultPrependable; //may be less than zero
+    ssize_t diff_len = peek_pos_ - DefaultPrependable; //may be less than zero
 
-    read_pos_ -= diff_len;
-    write_pos_ -= diff_len;
+    peek_pos_ -= diff_len;
+    append_pos_ -= diff_len;
     return;
 }
 
@@ -107,14 +106,14 @@ void StreamBuffer::insert(size_t position, const void *data, size_t len) {
         char *move_dst = peek(position) + len;
         ::memmove(move_dst, move_src, move_len);
         ::memcpy(peek(position), data, len);
-        write_pos_ += len;
+        append_pos_ += len;
     }
     else if (len <= prependable()) {
         const char *move_src = peek();
         size_t move_len = position;
         char *move_dst = peek() - len;
         ::memmove(move_dst, move_src, move_len);
-        read_pos_ -= len;
+        peek_pos_ -= len;
         ::memcpy(peek(position), data, len);
     }
     else if (len < prependable() + writeable()) {
@@ -130,9 +129,9 @@ void StreamBuffer::insert(size_t position, const void *data, size_t len) {
 
         ::memmove(left_move_dst, left_move_src, left_move_len);
 
-        read_pos_ -= (len - writeable());
+        peek_pos_ -= (len - writeable());
         ::memcpy(peek(position), data, len);
-        write_pos_ = capacity();
+        append_pos_ = capacity();
     }
     else {
         size_t new_capacity = (len + capacity_) * 2;
@@ -143,8 +142,8 @@ void StreamBuffer::insert(size_t position, const void *data, size_t len) {
         delete[] memory_;
         memory_ = new_memory_;
         capacity_ = new_capacity;
-        write_pos_ = DefaultPrependable + readable() + len;
-        read_pos_ = DefaultPrependable;
+        append_pos_ = DefaultPrependable + readable() + len;
+        peek_pos_ = DefaultPrependable;
     }
 }
 
@@ -163,66 +162,26 @@ void StreamBuffer::replace(size_t position, size_t replace_len, const void *data
     }
 }
 
-StreamBuffer::IO_RES StreamBuffer::read_fd(int fd, ssize_t *actual_read) noexcept {
-    static const size_t EXTRA_BUFF_SIZE = 65535;
-    char extra_buff[EXTRA_BUFF_SIZE];
-    struct iovec vec[2];
-    vec[0].iov_base = memory() + write_pos_;
-    vec[0].iov_len = writeable();
-    vec[1].iov_base = &extra_buff[0];
-    vec[1].iov_len = EXTRA_BUFF_SIZE;
 
-    ssize_t last_read;
-    ssize_t *last_read_ptr = &last_read;
-    if (actual_read != nullptr) {
-        last_read_ptr = actual_read;
+ssize_t StreamBuffer::read(int fd, size_t len) noexcept{
+    ensure_append_size(len);
+    ssize_t last_read = ::read(fd, write_pos(), len);
+    if(last_read>0) {
+        append_pos_ += last_read;
     }
-
-    *last_read_ptr = ::readv(fd, vec, 2);
-
-    if (*last_read_ptr < 0) {
-        if (errno == EINTR)
-            return read_fd(fd, actual_read);
-        else if (errno == EWOULDBLOCK || errno == EAGAIN)
-            return AGAIN;
-        else
-            return OTHER;
-    }
-    if (*last_read_ptr == 0) {
-        return ENDOF;
-    }
-    else if (static_cast<size_t>(*last_read_ptr) <= writeable()) {
-        write_pos_ += *last_read_ptr;
-    }
-    else {
-        size_t len = *last_read_ptr - writeable();
-        write_pos_ = capacity_;
-        append(extra_buff, len);
-    }
-    return OK;
+    return last_read;
 }
 
-StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, ssize_t *actual_write) noexcept {
-    ssize_t last_write;
-    ssize_t *last_write_ptr = &last_write;
-    if (actual_write != nullptr) {
-        last_write_ptr = actual_write;
+ssize_t StreamBuffer::write(int fd, size_t len) noexcept{
+    assert(len <= readable());
+    ssize_t last_write = ::write(fd, peek(), len);
+    if(last_write > 0) {
+       discard(static_cast<size_t>(last_write));
     }
-
-    *last_write_ptr = ::write(fd, peek(), readable());
-    if (*last_write_ptr < 0) {
-        if (errno == EINTR)
-            return write_fd(fd, peek(), readable(), actual_write);
-        else {
-            return errno == EAGAIN ? AGAIN : OTHER;
-        }
-    }
-    assert(readable() >= static_cast<size_t>(*last_write_ptr));
-    discard(static_cast<size_t>(*last_write_ptr));
-    return static_cast<size_t>(*last_write_ptr) == readable() ? OK : AGAIN;
+    return last_write;
 }
 
-StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, const void *data, size_t len, ssize_t *actual_write) noexcept {
+ssize_t StreamBuffer::write(int fd, const void *data, size_t len) noexcept {
     assert(data != nullptr);
     iovec vec[2];
     vec[0].iov_base = peek();
@@ -230,43 +189,52 @@ StreamBuffer::IO_RES StreamBuffer::write_fd(int fd, const void *data, size_t len
     vec[1].iov_base = (void *) data;
     vec[1].iov_len = len;
 
-    ssize_t last_write;
-    ssize_t *last_write_ptr = &last_write;
-    if (actual_write != nullptr) {
-        last_write_ptr = actual_write;
-    }
-
-    do {
-        *last_write_ptr = ::writev(fd, &vec[0], 2);
-        if (*last_write_ptr < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            else {
-                append(data, len);
-                return errno == EAGAIN ? AGAIN : OTHER;
-            }
-        }
-    } while (false);
-
-    if (static_cast<size_t>(*last_write_ptr) == readable() + len) {
-        return OK;
-    }
-
-    if (static_cast<size_t>(*last_write_ptr) <= readable()) {
-        discard((size_t) *last_write_ptr);
-        append(data, len);
-    }
-    else {
-        size_t data_write_len = static_cast<size_t>(*last_write_ptr) - readable();
+    ssize_t last_write = ::writev(fd, &vec[0], 2);
+    if (last_write > readable())
+    {
+        size_t use_data_len = last_write-readable();
         discard_all();
-        append(static_cast<const char *>(data) + data_write_len, len - data_write_len);
+        return use_data_len;
     }
-    return AGAIN;
+    else if(last_write>0)
+    {
+        discard(last_write);
+        return 0;
+    }
+    else
+    {
+        return last_write;
+    }
 }
 
+ssize_t StreamBuffer::read_some(int fd) noexcept {
+    constexpr size_t EXTRA_BUFF_SIZE = 65535;
+    char extra_buff[EXTRA_BUFF_SIZE];
+    struct iovec vec[2];
+    vec[0].iov_base = write_pos();
+    vec[0].iov_len = writeable();
+    vec[1].iov_base = &extra_buff[0];
+    vec[1].iov_len = EXTRA_BUFF_SIZE;
+
+    ssize_t last_read = ::readv(fd, vec, 2);
+    if (last_read > writeable()) {
+        size_t use_extra_len = last_read - writeable();
+        append_pos_ = capacity_;
+        append(extra_buff, use_extra_len);
+    }
+    else if(last_read>0)
+    {
+        append_pos_ += last_read;
+    }
+    return last_read;
+}
+
+ssize_t StreamBuffer::write_some(int fd) noexcept {
+    return write(fd, readable());
+}
 
 template<>
 void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) {
     lhs.swap(rhs);
 }
+
