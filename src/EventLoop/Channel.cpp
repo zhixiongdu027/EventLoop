@@ -7,7 +7,7 @@
 #include "Channel.h"
 
 int Channel::read() noexcept{
-    read_begin:
+    read_begin_label:
     ssize_t read_res = readBuffer_.read_some(fd());
     if (read_res > 0) {
         return 1;
@@ -17,7 +17,7 @@ int Channel::read() noexcept{
     }
     else {
         if (errno == EINTR) {
-            goto read_begin;
+            goto read_begin_label;
         }
         else if (errno == EAGAIN) {
             return 1;
@@ -34,7 +34,7 @@ void Channel::send() noexcept {
             channel_event_map_[id()] |= TODO_REGO;
         }
         else {
-            read_begin_label:
+            write_begin_label:
             ssize_t write_res = ::send(fd(), writeBuffer_.peek(), writeBuffer_.peek_able(), MSG_DONTWAIT | MSG_NOSIGNAL);
             if (write_res == writeBuffer_.peek_able()) {
                 writeBuffer_.discard_all();
@@ -45,7 +45,7 @@ void Channel::send() noexcept {
             }
             else {
                 if (errno == EINTR) {
-                    goto read_begin_label;
+                    goto write_begin_label;
                 }
                 else if (errno == EAGAIN) {
                     channel_event_map_[id()] |= TODO_REGO;
@@ -62,7 +62,7 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
     assert(data != nullptr);
     if (is_nonblock_)
     {
-        read_begin_label:
+        write_begin_label:
         ssize_t write_res = writeBuffer_.write(fd(), data, len);
         if (write_res == len) {
             //nothing ;
@@ -73,7 +73,7 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
         }
         else {
             if (errno == EINTR) {
-                goto read_begin_label;
+                goto write_begin_label;
             }
             else if (errno == EAGAIN) {
                 channel_event_map_[id()] |= TODO_REGO;
@@ -107,7 +107,7 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
     msg.msg_iov = &vec[0];
     msg.msg_iovlen = 2;
 
-    read_begin:
+    write_begin_able:
     ssize_t write_res = sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
     if (write_res == writeBuffer_.peek_able() + len) {
         writeBuffer_.discard_all();
@@ -125,7 +125,7 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
     }
     else {
         if (errno == EINTR) {
-            goto read_begin;
+            goto write_begin_able;
         }
         else if (errno == EAGAIN) {
             channel_event_map_[id()] |= TODO_REGO;
