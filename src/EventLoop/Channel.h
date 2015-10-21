@@ -6,7 +6,6 @@
 #ifndef EVENTLOOP_CHANNEL_H
 #define EVENTLOOP_CHANNEL_H
 
-
 #include "ChannelForward.h"
 #include <unordered_map>
 #include <sys/socket.h>
@@ -46,7 +45,7 @@ public:
     }
 
     inline void add_live_time(size_t seconds) noexcept {
-        will_add_live_time_ = (int) seconds;
+        timer_wheel_.regist(id() ,seconds);
     }
 
     inline void shutdown() noexcept {
@@ -79,11 +78,10 @@ private:
     }
 
     Channel(int fd,
-            ssize_t live_time,
-            bool is_socket, std::unordered_map<ChannelId, ChannelEvent> &event_map)
+            bool is_socket, std::unordered_map<ChannelId, ChannelEvent> &event_map ,TimerWheel& timer_wheel)
             : context(nullptr), id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
-              is_connected_(true), is_nonblock_(false), will_add_live_time_(live_time),
-              channel_event_map_(event_map) {
+              is_connected_(true), is_nonblock_(false),
+              channel_event_map_(event_map) ,timer_wheel_(timer_wheel){
     }
 
     Channel(const Channel &rhs) = delete;
@@ -102,8 +100,8 @@ private:
     const bool is_socket_;
     bool is_connected_;
     bool is_nonblock_;
-    ssize_t will_add_live_time_;
     std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
+    TimerWheel &timer_wheel_;
     ChannelCallback event_cb_;
     StreamBuffer readBuffer_;
     StreamBuffer writeBuffer_;

@@ -8,11 +8,11 @@
 
 int Channel::read() noexcept{
     read_begin:
-    ssize_t last_read = readBuffer_.read_some(fd());
-    if (last_read > 0) {
+    ssize_t read_res = readBuffer_.read_some(fd());
+    if (read_res > 0) {
         return 1;
     }
-    else if (last_read == 0) {
+    else if (read_res == 0) {
         return 0;
     }
     else {
@@ -34,18 +34,18 @@ void Channel::send() noexcept {
             channel_event_map_[id()] |= TODO_REGO;
         }
         else {
-            read_begin:
-            ssize_t last_write = ::send(fd(), writeBuffer_.peek(), writeBuffer_.readable(), MSG_DONTWAIT | MSG_NOSIGNAL);
-            if (last_write == writeBuffer_.readable()) {
+            read_begin_label:
+            ssize_t write_res = ::send(fd(), writeBuffer_.peek(), writeBuffer_.peek_able(), MSG_DONTWAIT | MSG_NOSIGNAL);
+            if (write_res == writeBuffer_.peek_able()) {
                 writeBuffer_.discard_all();
             }
-            else if (last_write >= 0) {
-                writeBuffer_.discard(last_write);
+            else if (write_res >= 0) {
+                writeBuffer_.discard(write_res);
                 channel_event_map_[id()] |= TODO_REGO;
             }
             else {
                 if (errno == EINTR) {
-                    goto read_begin;
+                    goto read_begin_label;
                 }
                 else if (errno == EAGAIN) {
                     channel_event_map_[id()] |= TODO_REGO;
@@ -63,12 +63,12 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
     if (is_nonblock_)
     {
         read_begin_label:
-        ssize_t last_write = writeBuffer_.write(fd(), data, len);
-        if (last_write == len) {
+        ssize_t write_res = writeBuffer_.write(fd(), data, len);
+        if (write_res == len) {
             //nothing ;
         }
-        else if (last_write >= 0) {
-            writeBuffer_.append(static_cast<const char *>(data) + last_write, len - last_write);
+        else if (write_res >= 0) {
+            writeBuffer_.append(static_cast<const char *>(data) + write_res, len - write_res);
             channel_event_map_[id()] |= TODO_REGO;
         }
         else {
@@ -98,7 +98,7 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
     }
     iovec vec[2];
     vec[0].iov_base = writeBuffer_.peek();
-    vec[0].iov_len = writeBuffer_.readable();
+    vec[0].iov_len = writeBuffer_.peek_able();
     vec[1].iov_base = (void *) data;
     vec[1].iov_len = len;
 
@@ -108,18 +108,18 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
     msg.msg_iovlen = 2;
 
     read_begin:
-    ssize_t last_write = sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
-    if (last_write == writeBuffer_.readable() + len) {
+    ssize_t write_res = sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
+    if (write_res == writeBuffer_.peek_able() + len) {
         writeBuffer_.discard_all();
     }
-    else if (last_write >= writeBuffer_.readable()) {
-        size_t used_data = last_write - writeBuffer_.readable();
+    else if (write_res >= writeBuffer_.peek_able()) {
+        size_t used_data = write_res - writeBuffer_.peek_able();
         writeBuffer_.discard_all();
         writeBuffer_.append(static_cast<const char *>(data) + used_data, len - used_data);
         channel_event_map_[id()] |= TODO_REGO;
     }
-    else if (last_write >= 0) {
-        writeBuffer_.discard(last_write);
+    else if (write_res >= 0) {
+        writeBuffer_.discard(write_res);
         writeBuffer_.append(data, len);
         channel_event_map_[id()] |= TODO_REGO;
     }

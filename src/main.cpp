@@ -2,37 +2,35 @@
 #include "EventLoop/EventLoop.h"
 #include "EventLoop/SockHelp/SocketHelp.h"
 
-static void client_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
+static void client_cb(EventLoop *loop, ChannelPtr &channel_ptr, ChannelEvent events) {
   if (events & EVENT_IN)
   {
-    if (ptr->read()<= 0)
+    if (channel_ptr->read()<= 0)
     {
-      ptr->erase();
+      channel_ptr->erase();
       return;
     }
-    StreamBuffer *buffer = ptr->get_read_buffer();
-    ptr->send(buffer->peek(), buffer->readable());
-    StreamBuffer *write_buffer=ptr->get_write_buffer();
-    write_buffer->append("love u" ,6);
-    ptr->send();
+    StreamBuffer *read_buffer = channel_ptr->get_read_buffer();
+    channel_ptr->send(read_buffer->peek(), read_buffer->peek_able());
+    channel_ptr->shutdown();
   }
   else
   {
     std::cout << "events :" << events << std::endl;
-    ptr->erase();
+    channel_ptr->erase();
   }
 }
 
-static void listen_cb(EventLoop *loop, ChannelPtr &ptr, ChannelEvent events) {
+static void listen_cb(EventLoop *loop, ChannelPtr &channel_ptr, ChannelEvent events) {
   if (events & EVENT_IN) {
-    int nfd = accept(ptr->fd(), nullptr, nullptr);
-    loop->add_channel(nfd, 1, false, false, client_cb);
+    int nfd = ::accept(channel_ptr->fd(), nullptr, nullptr);
+    loop->add_channel(nfd, true, false, 3, client_cb);
   }
 }
 
 int main() {
   int fd_8000 = create_tcp_listen(8000, 1);
   EventLoop loop;
-  loop.add_channel(fd_8000, -1, false, false, listen_cb);
+  loop.add_channel(fd_8000, true, false, -1, listen_cb);
   loop.start();
 }

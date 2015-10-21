@@ -13,7 +13,7 @@
 #include <algorithm>
 
 /// +-------------------+------------------+------------------+
-/// |    prependable    |     readable     |    writeable     |
+/// |    prepend_able   |     peek_able    |    append_able   |
 /// |                   |                  |                  |
 /// +-------------------+------------------+------------------+
 /// |                   |                  |                  |
@@ -25,7 +25,7 @@ public:
     static size_t DefaultCapacity;
 
 public:
-    StreamBuffer(size_t default_size = DefaultCapacity);
+    explicit StreamBuffer(size_t default_size = DefaultCapacity);
 
     StreamBuffer(const StreamBuffer &rhs);
 
@@ -54,14 +54,14 @@ public:
         }
     }
 
-    inline size_t prependable() const noexcept { return peek_pos_; }
+    inline size_t prepend_able() const noexcept { return peek_pos_; }
 
-    inline size_t readable() const noexcept { return append_pos_ - peek_pos_; }
+    inline size_t peek_able() const noexcept { return append_pos_ - peek_pos_; }
 
-    inline size_t writeable() const noexcept { return capacity_ - append_pos_; }
+    inline size_t append_able() const noexcept { return capacity_ - append_pos_; }
 
     bool empty() const noexcept {
-        return readable() == 0;
+        return peek_able() == 0;
     }
 
     inline void discard_all() noexcept {
@@ -70,7 +70,7 @@ public:
     }
 
     inline void discard(size_t len) noexcept {
-        if (len >= readable()) {
+        if (len >= peek_able()) {
             discard_all();
         }
         else {
@@ -82,93 +82,93 @@ public:
         if (position == 0) {
             discard(len);
         }
-        else if (position + len < readable()) {
-            memmove(peek(position) , peek(position+len), readable() - position - len);
+        else if (position + len < peek_able()) {
+            memmove(peek(position) , peek(position+len), peek_able() - position - len);
             append_pos_ -= len;
         }
-        else if (position <= readable()) {
+        else if (position <= peek_able()) {
             append_pos_ = peek_pos_ + position;
             return;
         }
         else {
-            assert(true); //if come here ,means  position > readable() ;
+            assert(true); //if come here ,means  position > peek_able() ;
             return;
         }
     }
 
     inline void prepend(const void *data, size_t len) noexcept {
-        assert(len <= prependable());
+        assert(len <= prepend_able());
         peek_pos_ -= len;
         memcpy(peek(), data, len);
     }
 
     inline void prepend_uint8(uint8_t rhs) noexcept {
-        assert(sizeof(uint8_t) < prependable());
+        assert(sizeof(uint8_t) < prepend_able());
         prepend(&rhs, sizeof(uint8_t));
     }
 
     inline void prepend_uint16(uint16_t rhs) noexcept {
-        assert(sizeof(uint16_t) < prependable());
+        assert(sizeof(uint16_t) < prepend_able());
         uint16_t val = htobe16(rhs);
         prepend(&val, sizeof(uint16_t));
     }
 
     inline void prepend_uint32(uint32_t rhs) noexcept {
-        assert(sizeof(uint32_t) < prependable());
+        assert(sizeof(uint32_t) < prepend_able());
         uint32_t val = htobe32(rhs);
         prepend(&val, sizeof(uint32_t));
     }
 
     inline void prepend_uint64(uint64_t rhs) noexcept {
-        assert(sizeof(uint64_t) < prependable());
+        assert(sizeof(uint64_t) < prepend_able());
         uint64_t val = htobe64(rhs);
         prepend(&val, sizeof(uint64_t));
     }
 
     inline char *peek(size_t position = 0) noexcept {
-        if (position < readable()) {
+        if (position < peek_able()) {
             return memory() + peek_pos_ + position;
         }
         return nullptr;
     }
 
     inline const char *peek(size_t position = 0) const noexcept {
-        if (position < readable()) {
+        if (position < peek_able()) {
             return memory() + peek_pos_ + position;
         }
         return nullptr;
     }
 
     inline uint8_t peek_uint8(size_t position = 0) const noexcept {
-        assert(position + sizeof(uint8_t) <= readable());
+        assert(position + sizeof(uint8_t) <= peek_able());
         uint8_t val = 0;
         ::memcpy(&val, peek(position), sizeof(uint8_t));
         return val;
     }
 
     inline uint16_t peek_uint16(size_t position = 0) const noexcept {
-        assert(position + sizeof(uint16_t) <= readable());
+        assert(position + sizeof(uint16_t) <= peek_able());
         uint16_t val = 0;
         ::memcpy(&val, peek(position), sizeof(uint16_t));
         return be16toh(val);
     }
 
     inline uint32_t peek_uint32(size_t position = 0) const noexcept {
-        assert(position + sizeof(uint32_t) <= readable());
+        assert(position + sizeof(uint32_t) <= peek_able());
         uint32_t val = 0;
         ::memcpy(&val, peek(position), sizeof(uint32_t));
         return be32toh(val);
     }
 
     inline uint64_t peek_uint64(size_t position = 0) const noexcept {
-        assert(position + sizeof(uint64_t) <= readable());
+        assert(position + sizeof(uint64_t) <= peek_able());
         uint64_t val = 0;
         ::memcpy(&val, peek(position), sizeof(uint64_t));
         return be64toh(val);
     }
 
     inline void extract(size_t position, void *dst, size_t len) noexcept {
-        assert(position + len <= readable());
+        assert(position + len <= peek_able());
         memcpy(dst, peek() + position, len);
         discard(position, len);
     }
@@ -199,7 +199,7 @@ public:
 
     inline void append(const void *data, size_t len) {
         ensure_append_size(len);
-        memcpy(write_pos(), data, len);
+        memcpy(append_pos(), data, len);
         append_pos_ += len;
     }
 
@@ -277,12 +277,12 @@ public:
 private:
     inline char *memory() noexcept { return memory_; }
 
-    inline void *write_pos() noexcept { return memory() + append_pos_; }
+    inline void *append_pos() noexcept { return memory() + append_pos_; }
 
     inline void ensure_append_size(size_t len) {
         assert(capacity_ >= append_pos_);
         assert(append_pos_ >= peek_pos_);
-        if (writeable() < len) {
+        if (append_able() < len) {
             ensure_append_size_with_memory_operator(len);
         }
     }
