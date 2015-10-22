@@ -10,13 +10,15 @@
 #include <memory>
 #include <functional>
 
+
 class EventLoop;
+typedef EventLoop* const EventLoopPtr;
 class Channel;
 
 typedef uint32_t ChannelEvent;
 typedef uint32_t ChannelId;
 typedef std::unique_ptr<Channel> ChannelPtr;
-typedef std::function<void(EventLoop *, ChannelPtr &, ChannelEvent)> ChannelCallback;
+typedef std::function<void(EventLoopPtr&, ChannelPtr&, ChannelEvent)> ChannelCallback;
 
 const ChannelEvent TODO_REGO = 1lu << 30;
 const ChannelEvent TODO_SHUTDOWN = 1lu << 29;

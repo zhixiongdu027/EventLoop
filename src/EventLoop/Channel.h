@@ -6,7 +6,7 @@
 #ifndef EVENTLOOP_CHANNEL_H
 #define EVENTLOOP_CHANNEL_H
 
-#include "ChannelForward.h"
+#include "Forward.h"
 #include <unordered_map>
 #include <sys/socket.h>
 #include <unistd.h>

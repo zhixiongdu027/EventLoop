@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11  -O3")
 set(SOURCE_FILES
         src/EventLoop/Channel.cpp
         src/EventLoop/Channel.h
-        src/EventLoop/ChannelForward.h
+        src/EventLoop/Forward.h
         src/EventLoop/EventLoop.h
         src/EventLoop/EventLoop.cpp
         src/EventLoop/StreamBuffer.cpp

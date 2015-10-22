@@ -8,7 +8,7 @@
 
 #include <sys/epoll.h>
 #include <unordered_map>
-#include "ChannelForward.h"
+#include "Forward.h"
 #include "Channel.h"
 #include "TimerWheel.h"
 
