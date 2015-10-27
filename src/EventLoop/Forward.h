@@ -13,8 +13,12 @@
 
 class EventLoop;
 typedef EventLoop* const EventLoopPtr;
-class Channel;
 
+class StreamBuffer;
+
+typedef std::unique_ptr<StreamBuffer> StreamBufferPtr;
+
+class Channel;
 typedef uint32_t ChannelEvent;
 typedef uint32_t ChannelId;
 typedef std::unique_ptr<Channel> ChannelPtr;

@@ -8,7 +8,7 @@
 
 int Channel::read() noexcept{
     read_begin_label:
-    ssize_t read_res = readBuffer_.read_some(fd());
+    ssize_t read_res = read_buffer_->read_some(fd());
     if (read_res > 0) {
         return 1;
     }
@@ -29,18 +29,19 @@ int Channel::read() noexcept{
 }
 
 void Channel::send() noexcept {
-    if (!writeBuffer_.empty()) {
+    if (!write_buffer_->empty()) {
         if (!is_socket_) {
             channel_event_map_[id()] |= TODO_REGO;
         }
         else {
             write_begin_label:
-            ssize_t write_res = ::send(fd(), writeBuffer_.peek(), writeBuffer_.peek_able(), MSG_DONTWAIT | MSG_NOSIGNAL);
-            if (write_res == writeBuffer_.peek_able()) {
-                writeBuffer_.discard_all();
+            ssize_t write_res = ::send(fd(), write_buffer_->peek(), write_buffer_->peek_able(),
+                                       MSG_DONTWAIT | MSG_NOSIGNAL);
+            if (write_res == write_buffer_->peek_able()) {
+                write_buffer_->discard_all();
             }
             else if (write_res >= 0) {
-                writeBuffer_.discard(write_res);
+                write_buffer_->discard(write_res);
                 channel_event_map_[id()] |= TODO_REGO;
             }
             else {
@@ -63,12 +64,12 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
     if (is_nonblock_)
     {
         write_begin_label:
-        ssize_t write_res = writeBuffer_.write(fd(), data, len);
+        ssize_t write_res = write_buffer_->write(fd(), data, len);
         if (write_res == len) {
             //nothing ;
         }
         else if (write_res >= 0) {
-            writeBuffer_.append(static_cast<const char *>(data) + write_res, len - write_res);
+            write_buffer_->append(static_cast<const char *>(data) + write_res, len - write_res);
             channel_event_map_[id()] |= TODO_REGO;
         }
         else {
@@ -85,7 +86,7 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
     }
     else
     {
-        writeBuffer_.append(data, len);
+        write_buffer_->append(data, len);
         channel_event_map_[id()] |= TODO_REGO;
     }
 }
@@ -93,12 +94,12 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
 void Channel::send_to_socket(const void *data, size_t len) noexcept {
     assert(data != nullptr);
     if (!is_connected_) {
-        writeBuffer_.append(data, len);
+        write_buffer_->append(data, len);
         return;
     }
     iovec vec[2];
-    vec[0].iov_base = writeBuffer_.peek();
-    vec[0].iov_len = writeBuffer_.peek_able();
+    vec[0].iov_base = write_buffer_->peek();
+    vec[0].iov_len = write_buffer_->peek_able();
     vec[1].iov_base = (void *) data;
     vec[1].iov_len = len;
 
@@ -109,18 +110,18 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
 
     write_begin_able:
     ssize_t write_res = sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
-    if (write_res == writeBuffer_.peek_able() + len) {
-        writeBuffer_.discard_all();
+    if (write_res == write_buffer_->peek_able() + len) {
+        write_buffer_->discard_all();
     }
-    else if (write_res >= writeBuffer_.peek_able()) {
-        size_t used_data = write_res - writeBuffer_.peek_able();
-        writeBuffer_.discard_all();
-        writeBuffer_.append(static_cast<const char *>(data) + used_data, len - used_data);
+    else if (write_res >= write_buffer_->peek_able()) {
+        size_t used_data = write_res - write_buffer_->peek_able();
+        write_buffer_->discard_all();
+        write_buffer_->append(static_cast<const char *>(data) + used_data, len - used_data);
         channel_event_map_[id()] |= TODO_REGO;
     }
     else if (write_res >= 0) {
-        writeBuffer_.discard(write_res);
-        writeBuffer_.append(data, len);
+        write_buffer_->discard(write_res);
+        write_buffer_->append(data, len);
         channel_event_map_[id()] |= TODO_REGO;
     }
     else {

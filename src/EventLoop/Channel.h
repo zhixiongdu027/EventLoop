@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "StreamBuffer.h"
-#include "TimerWheel.h"
+#include "TaskWheel.h"
 
 class Channel {
     friend class EventLoop;
@@ -32,28 +32,16 @@ public:
         event_cb_ = cb;
     }
 
-    inline void set_nonblock(bool is_nonblock) noexcept {
-        is_nonblock_ = is_nonblock;
+    inline StreamBufferPtr &get_read_buffer() noexcept {
+        return read_buffer_;
     }
 
-    inline StreamBuffer *get_read_buffer() noexcept {
-        return &readBuffer_;
-    }
-
-    inline StreamBuffer *get_write_buffer() noexcept {
-        return &writeBuffer_;
-    }
-
-    inline void add_live_time(size_t seconds) noexcept {
-        timer_wheel_.regist(id() ,seconds);
+    inline StreamBufferPtr &get_write_buffer() noexcept {
+        return write_buffer_;
     }
 
     inline void shutdown() noexcept {
         channel_event_map_[id_] |= TODO_SHUTDOWN;
-    }
-
-    inline void erase() noexcept {
-        channel_event_map_[id_] |= TODO_ERASE;
     }
 
     int read() noexcept;
@@ -77,11 +65,15 @@ private:
         return __sync_fetch_and_add(&id, 1);
     }
 
-    Channel(int fd,
-            bool is_socket, std::unordered_map<ChannelId, ChannelEvent> &event_map ,TimerWheel& timer_wheel)
+    Channel(int fd, bool apply_buffer,
+            bool is_socket, bool is_nonblock, std::unordered_map<ChannelId, ChannelEvent> &event_map)
             : context(nullptr), id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
-              is_connected_(true), is_nonblock_(false),
-              channel_event_map_(event_map) ,timer_wheel_(timer_wheel){
+              is_connected_(true), is_nonblock_(is_nonblock),
+              channel_event_map_(event_map) {
+        if (apply_buffer) {
+            read_buffer_ = std::move(std::unique_ptr<StreamBuffer>(new StreamBuffer));
+            write_buffer_ = std::move(std::unique_ptr<StreamBuffer>(new StreamBuffer));
+        }
     }
 
     Channel(const Channel &rhs) = delete;
@@ -101,10 +93,9 @@ private:
     bool is_connected_;
     bool is_nonblock_;
     std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
-    TimerWheel &timer_wheel_;
     ChannelCallback event_cb_;
-    StreamBuffer readBuffer_;
-    StreamBuffer writeBuffer_;
+    StreamBufferPtr read_buffer_;
+    StreamBufferPtr write_buffer_;
 };
 
 #endif // EVENTLOOP_CHANNEL_H
