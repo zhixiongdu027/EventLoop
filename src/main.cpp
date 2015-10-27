@@ -12,9 +12,9 @@ int main() {
                 loop->erase_channel(channel_ptr->id());
                 return;
             }
-            loop->add_channel_life(channel_ptr->id(), 30);
+            loop->add_channel_lifetime(channel_ptr->id(), 30);
             loop->add_task_on_channel(channel_ptr->id(), 3, false, [](EventLoopPtr &loop, ChannelPtr &channel_ptr) {
-                channel_ptr->send("love\n", 5);
+                channel_ptr->send(channel_ptr->get_read_buffer()->peek(), channel_ptr->get_read_buffer()->peek_able());
             });
         }
         else {
@@ -30,6 +30,6 @@ int main() {
         }
     };
 
-    loop.add_channel(listen_fd, false, true, false, -1, listen_cb);
+    ChannelPtr &listen_channel = loop.add_channel(listen_fd, false, true, false, -1, listen_cb);
     loop.start();
 }

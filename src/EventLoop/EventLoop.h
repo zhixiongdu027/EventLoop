@@ -64,7 +64,7 @@ public:
         channel_event_map_[id] |= TODO_ERASE;
     }
 
-    inline void add_channel_life(ChannelId channel_id, size_t seconds) {
+    inline void add_channel_lifetime(ChannelId channel_id, size_t seconds) {
         if (channel_map_.find(channel_id) != channel_map_.end()) {
             channel_lives_map_[channel_id]++;
             task_wheel_.regist(seconds,
