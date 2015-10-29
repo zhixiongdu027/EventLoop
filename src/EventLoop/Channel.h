@@ -65,15 +65,10 @@ private:
         return __sync_fetch_and_add(&id, 1);
     }
 
-    Channel(int fd, bool apply_buffer,
-            bool is_socket, bool is_nonblock, std::unordered_map<ChannelId, ChannelEvent> &event_map)
+    Channel(int fd, bool is_socket, bool is_nonblock, std::unordered_map<ChannelId, ChannelEvent> &event_map)
             : context(nullptr), id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
               is_connected_(true), is_nonblock_(is_nonblock),
-              channel_event_map_(event_map) {
-        if (apply_buffer) {
-            read_buffer_ = std::move(std::unique_ptr<StreamBuffer>(new StreamBuffer));
-            write_buffer_ = std::move(std::unique_ptr<StreamBuffer>(new StreamBuffer));
-        }
+              channel_event_map_(event_map), read_buffer_(new StreamBuffer), write_buffer_(new StreamBuffer) {
     }
 
     Channel(const Channel &rhs) = delete;

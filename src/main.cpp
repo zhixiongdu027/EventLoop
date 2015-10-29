@@ -32,6 +32,6 @@ int main() {
         }
     };
 
-    ChannelPtr &listen_channel = loop.add_channel(listen_fd, false, true, false, -1, listen_cb);
+    loop.add_channel(listen_fd, false, true, false, -1, listen_cb);
     loop.start();
 }
