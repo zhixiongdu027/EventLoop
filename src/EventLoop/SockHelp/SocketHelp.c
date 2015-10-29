@@ -134,6 +134,10 @@ int create_tcp_listen(unsigned short port, int reuse) {
     if (socket_fd < 0) {
         return -1;
     }
+    if(set_no_block(socket_fd)<0)
+    {
+        return -1;
+    }
 
     int res;
     if (reuse != 0) {

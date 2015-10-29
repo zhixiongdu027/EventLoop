@@ -37,7 +37,7 @@ public:
 
     ~StreamBuffer();
 
-    inline void swap(StreamBuffer &rhs) {
+    inline void swap(StreamBuffer &rhs) noexcept {
         std::swap(memory_, rhs.memory_);
         std::swap(capacity_, rhs.capacity_);
         std::swap(peek_pos_, rhs.peek_pos_);

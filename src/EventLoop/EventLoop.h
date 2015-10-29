@@ -23,40 +23,31 @@ public:
     ChannelPtr &add_channel(int fd, bool apply_buffer, bool is_socket, bool is_nonblock, ssize_t lifetime,
                             ChannelCallback io_event_cb);
 
-    inline void add_task_on_loop(size_t seconds, bool once, std::function<void(EventLoopPtr &)> cb) {
-        if (once) {
-            task_wheel_.regist(seconds,
-                               [this, seconds, cb]() {
-                                   cb(this);
-                               });
-        }
-        else {
-            task_wheel_.regist(seconds,
-                               [this, seconds, cb]() {
-                                   cb(this);
-                                   add_task_on_loop(seconds, false, cb);
-                               });
-        }
+    inline void add_task_on_loop(size_t seconds, void *user_arg,
+                                 std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
+        task_wheel_.regist(seconds,
+                           [this, seconds, cb, user_arg]() {
+                               bool again = false;
+                               cb(this, user_arg, &again);
+                               if (again) {
+                                   add_task_on_loop(seconds, user_arg, cb);
+                               }
+                           });
     }
 
-    inline void add_task_on_channel(ChannelId channel_id, size_t seconds, bool once,
-                                    std::function<void(EventLoopPtr &, ChannelPtr &)> cb) {
+    inline void add_task_on_channel(ChannelId channel_id, size_t seconds, void *user_arg,
+                                    std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg, bool *again)> cb) {
         if (channel_map_.find(channel_id) != channel_map_.end()) {
-            if (once) {
-                task_wheel_.regist(seconds, [this, channel_id, seconds, cb]() {
-                    if (channel_map_.find(channel_id) != channel_map_.end()) {
-                        cb(this, channel_map_[channel_id]);
-                    }
-                });
-            }
-            else {
-                task_wheel_.regist(seconds, [this, channel_id, seconds, cb]() {
-                    if (channel_map_.find(channel_id) != channel_map_.end()) {
-                        cb(this, channel_map_[channel_id]);
-                        add_task_on_channel(channel_id, seconds, false, cb);
-                    }
-                });
-            }
+            task_wheel_.regist(seconds,
+                               [this, channel_id, seconds, cb, user_arg]() {
+                                   if (channel_map_.find(channel_id) != channel_map_.end()) {
+                                       bool again = false;
+                                       cb(this, channel_map_[channel_id], user_arg, &again);
+                                       if (again) {
+                                           add_task_on_channel(channel_id, seconds, user_arg, cb);
+                                       }
+                                   }
+                               });
         }
     }
 

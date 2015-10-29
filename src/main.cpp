@@ -5,7 +5,6 @@
 int main() {
     int listen_fd = create_tcp_listen(9000, 1);
     EventLoop loop;
-
     ChannelCallback client_cb = [&](EventLoopPtr &loop, ChannelPtr &channel_ptr, ChannelEvent events) {
         if (events & EVENT_IN) {
             if (channel_ptr->read() <= 0) {
@@ -13,9 +12,12 @@ int main() {
                 return;
             }
             loop->add_channel_lifetime(channel_ptr->id(), 30);
-            loop->add_task_on_channel(channel_ptr->id(), 3, false, [](EventLoopPtr &loop, ChannelPtr &channel_ptr) {
-                channel_ptr->send(channel_ptr->get_read_buffer()->peek(), channel_ptr->get_read_buffer()->peek_able());
-            });
+            loop->add_task_on_channel(channel_ptr->id(), 3, nullptr,
+                                      [](EventLoopPtr &loop, ChannelPtr &channel_ptr, void *user_arg, bool *again) {
+                                          channel_ptr->send(channel_ptr->get_read_buffer()->peek(),
+                                                            channel_ptr->get_read_buffer()->peek_able());
+                                          *again = true;
+                                      });
         }
         else {
             std::cout << "events :" << events << std::endl;
