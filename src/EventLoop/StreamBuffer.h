@@ -272,7 +272,9 @@ public:
 
     ssize_t read_some(int fd) noexcept;
 
-    ssize_t write_some(int fd) noexcept;
+    inline ssize_t write_some(int fd) noexcept {
+        return write(fd, peek_able());
+    }
 
 private:
     inline char *memory() noexcept { return memory_; }

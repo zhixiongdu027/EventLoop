@@ -20,8 +20,7 @@ public:
 
     ~EventLoop() noexcept;
 
-    ChannelPtr &add_channel(int fd, bool apply_buffer, bool is_socket, bool is_nonblock, ssize_t lifetime,
-                            ChannelCallback io_event_cb);
+    ChannelPtr &add_channel(int fd, bool is_socket, bool is_nonblock, ssize_t lifetime, ChannelCallback io_event_cb);
 
     inline void add_task_on_loop(size_t seconds, void *user_arg,
                                  std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {

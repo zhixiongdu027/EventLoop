@@ -32,12 +32,12 @@ public:
         event_cb_ = cb;
     }
 
-    inline StreamBufferPtr &get_read_buffer() noexcept {
-        return read_buffer_;
+    inline StreamBufferPtr get_read_buffer() noexcept {
+        return &read_buffer_;
     }
 
-    inline StreamBufferPtr &get_write_buffer() noexcept {
-        return write_buffer_;
+    inline StreamBufferPtr get_write_buffer() noexcept {
+        return &write_buffer_;
     }
 
     inline void shutdown() noexcept {
@@ -46,7 +46,9 @@ public:
 
     int read() noexcept;
 
-    void send() noexcept;
+    inline void send() noexcept {
+        is_socket_ ? send_to_normal() : send_to_socket();
+    };
 
     inline void send(const char *data, size_t len) noexcept {
         is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
@@ -68,7 +70,7 @@ private:
     Channel(int fd, bool is_socket, bool is_nonblock, std::unordered_map<ChannelId, ChannelEvent> &event_map)
             : context(nullptr), id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
               is_connected_(true), is_nonblock_(is_nonblock),
-              channel_event_map_(event_map), read_buffer_(new StreamBuffer), write_buffer_(new StreamBuffer) {
+              channel_event_map_(event_map) {
     }
 
     Channel(const Channel &rhs) = delete;
@@ -77,7 +79,11 @@ private:
 
     Channel &operator=(const Channel &rhs) = delete;
 
+    void send_to_normal();
+
     void send_to_normal(const void *data, size_t len) noexcept;
+
+    void send_to_socket();
 
     void send_to_socket(const void *data, size_t len) noexcept;
 
@@ -89,8 +95,8 @@ private:
     bool is_nonblock_;
     std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
     ChannelCallback event_cb_;
-    StreamBufferPtr read_buffer_;
-    StreamBufferPtr write_buffer_;
+    StreamBuffer read_buffer_;
+    StreamBuffer write_buffer_;
 };
 
 #endif // EVENTLOOP_CHANNEL_H

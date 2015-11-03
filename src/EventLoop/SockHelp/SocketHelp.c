@@ -2,88 +2,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-int tcp_connect_overtime(const char *host, int port, int timeout) {
-    struct addrinfo hints, *res;
-
-    memset(&hints, 0x00, sizeof(hints));
-    hints.ai_family = PF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-
-    if (port > 65535) return -1;
-
-    char port_str[6];
-    sprintf(port_str, "%d", port);
-    int result = getaddrinfo(host, port_str, &hints, &res);
-    if (result != 0) {
-        return -1;
-    }
-
-    int socket_fd = socket(res->ai_family, SOCK_STREAM, res->ai_protocol);
-    if (socket_fd < 0) {
-        freeaddrinfo(res);
-        return -1;
-    }
-
-    int flags = fcntl(socket_fd, F_GETFL, 0);
-    fcntl(socket_fd, F_SETFL, flags | O_NONBLOCK);
-
-    result = connect(socket_fd, res->ai_addr, res->ai_addrlen);
-    if (result == 0) {
-        result = 1;
-    }
-    else if (result < 0 && errno != EINPROGRESS) {
-        result = -1;
-    }
-    else {
-        do {
-            /* set connection timeout */
-            struct timeval tv;
-            fd_set rfds, wfds;
-            tv.tv_sec = timeout;
-            tv.tv_usec = 0;
-
-            FD_ZERO(&wfds);
-            FD_SET(socket_fd, &wfds);
-            rfds = wfds;
-
-            result = select(socket_fd + 1, &rfds, &wfds, NULL, &tv);
-            if (result == 0) {
-                result = -1;
-                break;
-            }
-            if (result < 0 && errno != EINTR) {
-                result = -1;
-                break;
-            }
-            else if (result > 0) {
-                socklen_t optlen = sizeof(int);
-                int optval;
-                if (getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, (void *) (&optval), &optlen) < 0) {
-                    result = -1;
-                    break;
-                }
-                if (optval != 0) {
-                    result = -1;
-                    break;
-                }
-                result = 1;
-                break;
-            }
-            else {
-                result = -1;
-                break;
-            }
-        }
-        while (1);
-    }
-    freeaddrinfo(res);
-    return (result == 1 ? socket_fd : result);
-}
 
 int tcp_connect(const char *host, unsigned short port) {
 
@@ -134,8 +55,7 @@ int create_tcp_listen(unsigned short port, int reuse) {
     if (socket_fd < 0) {
         return -1;
     }
-    if(set_no_block(socket_fd)<0)
-    {
+    if (fcntl(socket_fd, F_SETFL, O_NONBLOCK)) {
         return -1;
     }
 

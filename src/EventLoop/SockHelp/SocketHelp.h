@@ -14,9 +14,6 @@ extern "C"
 #endif
 
 #include <netdb.h>
-
-int tcp_connect_overtime(const char *host, int port, int timeout);
-
 int tcp_connect(const char *host, unsigned short port);
 
 int create_tcp_listen(unsigned short port, int reuse);
