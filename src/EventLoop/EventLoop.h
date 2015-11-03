@@ -8,13 +8,13 @@
 
 #include <sys/epoll.h>
 #include <unordered_map>
+#include <iostream>
 #include "Forward.h"
 #include "Channel.h"
 #include "TaskWheel.h"
 
 class EventLoop {
 public:
-
     EventLoop() : context(nullptr), init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
     }
 
@@ -59,8 +59,11 @@ public:
             channel_lives_map_[channel_id]++;
             task_wheel_.regist(seconds,
                                [this, channel_id]() {
-                                   assert(channel_lives_map_[channel_id] >= 1);
-                                   if (channel_lives_map_[channel_id] == 1) {
+                                   size_t &channel_lives = channel_lives_map_[channel_id];
+                                   if (channel_lives == 0) {
+                                       channel_lives_map_.erase(channel_id);
+                                   }
+                                   else if (channel_lives_map_[channel_id] == 1) {
                                        channel_lives_map_.erase(channel_id);
                                        channel_event_map_[channel_id] |= EVENT_TIMEOVER;
                                    }

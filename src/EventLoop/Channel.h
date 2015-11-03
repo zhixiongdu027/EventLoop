@@ -32,11 +32,11 @@ public:
         event_cb_ = cb;
     }
 
-    inline StreamBufferPtr get_read_buffer() noexcept {
+    inline StreamBuffer *get_read_buffer() noexcept {
         return &read_buffer_;
     }
 
-    inline StreamBufferPtr get_write_buffer() noexcept {
+    inline StreamBuffer *get_write_buffer() noexcept {
         return &write_buffer_;
     }
 

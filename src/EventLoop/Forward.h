@@ -16,8 +16,6 @@ typedef EventLoop* const EventLoopPtr;
 
 class StreamBuffer;
 
-typedef StreamBuffer *StreamBufferPtr;
-
 class Channel;
 typedef uint32_t ChannelEvent;
 typedef uint32_t ChannelId;
