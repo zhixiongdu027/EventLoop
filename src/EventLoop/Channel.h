@@ -47,7 +47,7 @@ public:
     int read() noexcept;
 
     inline void send() noexcept {
-        is_socket_ ? send_to_normal() : send_to_socket();
+        is_socket_ ? send_to_socket() : send_to_normal();
     };
 
     inline void send(const char *data, size_t len) noexcept {
