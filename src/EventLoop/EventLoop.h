@@ -8,7 +8,6 @@
 
 #include <sys/epoll.h>
 #include <unordered_map>
-#include <iostream>
 #include "Forward.h"
 #include "Channel.h"
 #include "TaskWheel.h"

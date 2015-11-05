@@ -30,7 +30,7 @@ void Channel::send_to_normal() {
             if (errno == EINTR) {
                 goto write_begin_label;
             }
-            errno == EAGAIN ? channel_event_map_[id()] |= TODO_REGO : channel_event_map_[id()] |= EVENT_SENDERR;
+            channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SENDERR);
         }
         else if (!write_buffer_.empty()) {
             channel_event_map_[id()] |= TODO_REGO;
@@ -51,7 +51,7 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
         if (errno == EINTR) {
             goto write_begin_label;
         }
-        errno == EAGAIN ? channel_event_map_[id()] |= TODO_REGO : channel_event_map_[id()] |= EVENT_SENDERR;
+        channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SENDERR);
     }
     else if (static_cast<size_t >(write_res) < len) {
         write_buffer_.append(static_cast<const char *>(data) + write_res, len - write_res);
