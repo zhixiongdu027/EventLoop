@@ -5,7 +5,6 @@
 void task_cb(EventLoopPtr &loop, ChannelPtr &channel_ptr, void *user_arg, bool *again) {
     StreamBuffer *read_buffer = channel_ptr->get_read_buffer();
     channel_ptr->send(read_buffer->peek(), read_buffer->peek_able());
-    *again = true;
 }
 
 void client_cb(EventLoopPtr &loop, ChannelPtr &channel_ptr, ChannelEvent events) {
@@ -15,7 +14,7 @@ void client_cb(EventLoopPtr &loop, ChannelPtr &channel_ptr, ChannelEvent events)
             return;
         }
         loop->add_channel_lifetime(channel_ptr->id(), 30);
-        loop->add_task_on_channel(channel_ptr->id(), 3, nullptr, task_cb);
+        loop->add_task_on_channel(channel_ptr->id(), 10, nullptr, task_cb);
     }
     else {
         std::cout << "events :" << events << std::endl;
