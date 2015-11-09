@@ -34,4 +34,15 @@ const ChannelEvent EVENT_SENDERR = 1lu << 12;
 const ChannelEvent EVENT_TIMEOVER = 1lu << 11;
 const ChannelEvent EVENT_EPOLLERR = 1lu << 10;
 
+typedef union {
+    void *ptr;
+    int32_t i32;
+    int64_t i64;
+    uint32_t u32;
+    uint64_t u64;
+} Context;
+
+typedef std::function<void(void *)> ContextDeleter;
+
+
 #endif //EVENTLOOP_CHANNELFORWARD_H

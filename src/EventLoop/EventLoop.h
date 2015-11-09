@@ -14,7 +14,8 @@
 
 class EventLoop {
 public:
-    EventLoop() : context(nullptr), init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
+    EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
+        memset(&context, 0x00, sizeof(context));
     }
 
     ~EventLoop() noexcept;
@@ -129,8 +130,8 @@ private:
     }
 
 public:
-    void *context;
-    std::function<void(void *)> delete_context;
+    Context context;
+    ContextDeleter context_deleter;
 private:
     INIT_STATUS init_status_;
     int epoll_;

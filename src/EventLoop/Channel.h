@@ -17,8 +17,8 @@ class Channel {
     friend class EventLoop;
 
 public:
-    void *context;
-    std::function<void(void *)> delete_context;
+    Context context;
+    ContextDeleter context_deleter;
 
     inline int fd() const noexcept {
         return fd_;
@@ -55,8 +55,8 @@ public:
     }
 
     ~Channel() noexcept {
-        if (context != nullptr && delete_context != nullptr) {
-            delete_context(context);
+        if (context_deleter != nullptr) {
+            context_deleter(context.ptr);
         }
         close(fd_);
     };
@@ -68,9 +68,10 @@ private:
     }
 
     Channel(int fd, bool is_socket, bool is_nonblock, std::unordered_map<ChannelId, ChannelEvent> &event_map)
-            : context(nullptr), id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
+            : id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
               is_connected_(true), is_nonblock_(is_nonblock),
               channel_event_map_(event_map) {
+        memset(&context, 0x00, sizeof(context));
     }
 
     Channel(const Channel &rhs) = delete;
