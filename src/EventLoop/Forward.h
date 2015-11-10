@@ -22,17 +22,18 @@ typedef uint32_t ChannelId;
 typedef std::unique_ptr<Channel> ChannelPtr;
 typedef std::function<void(EventLoopPtr&, ChannelPtr&, ChannelEvent)> ChannelCallback;
 
-const ChannelEvent TODO_REGO = 1lu << 30;
-const ChannelEvent TODO_SHUTDOWN = 1lu << 29;
-const ChannelEvent TODO_ERASE = 1lu << 28;
-const ChannelEvent TODO_OUTPUT = 1lu << 27;
+const ChannelEvent TODO_REGO = 1lu << 31;
+const ChannelEvent TODO_SHUTDOWN = 1lu << 30;
+const ChannelEvent TODO_ERASE = 1lu << 29;
+const ChannelEvent TODO_OUTPUT = 1lu << 28;
 
 const ChannelEvent EVENT_IN = 1lu << 15;
 const ChannelEvent EVENT_HUP = 1lu << 14;
-const ChannelEvent EVENT_CONNECTERR = 1lu << 13;
-const ChannelEvent EVENT_SENDERR = 1lu << 12;
-const ChannelEvent EVENT_TIMEOVER = 1lu << 11;
-const ChannelEvent EVENT_EPOLLERR = 1lu << 10;
+const ChannelEvent EVENT_TIMEOVER = 1lu << 13;
+const ChannelEvent EVENT_EPOLL_ERR = 1lu << 12;
+const ChannelEvent EVENT_CONNECT_ERR = 1lu << 11;
+const ChannelEvent EVENT_CONNECT_TIMEOVER = 1lu << 10;
+const ChannelEvent EVENT_SEND_ERR = 1lu << 9;
 
 typedef union {
     void *ptr;

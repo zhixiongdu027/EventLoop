@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <assert.h>
 
 int tcp_connect(const char *host, unsigned short port) {
 
@@ -83,4 +85,45 @@ int create_tcp_listen(unsigned short port, int reuse) {
 int set_no_block(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short port, int *sock_fd) {
+    assert(sock_fd != NULL);
+    struct addrinfo hints, *res, *ressave;
+    bzero(&hints, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_NUMERICSERV;
+
+    char server[6] = {'\0'};
+    sprintf(server, "%d", port);
+    if (getaddrinfo(host, server, &hints, &res) != 0) {
+        return NONBLOCK_CONNECT_ERROR;
+    }
+    ressave = res;
+
+    NONBLOCK_CONNECT_STATUS return_value = NONBLOCK_CONNECT_ERROR;
+    if (res != NULL) {
+        *sock_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+        if (*sock_fd < 0 || fcntl(*sock_fd, F_SETFL, O_NONBLOCK) < 0) {
+            close(sock_fd);
+        }
+        else {
+            int connect_res = connect(*sock_fd, res->ai_addr, res->ai_addrlen);
+            if (connect_res == -1 && errno == EINPROGRESS) {
+                return_value = NONBLOCK_CONNECT_INPROGRESS;
+            }
+            else if (connect_res == 0) {
+                return_value = NONBLOCK_CONNECT_OK;
+            }
+            else {
+                close(sock_fd);
+                *sock_fd = -1;
+                return_value = NONBLOCK_CONNECT_ERROR;
+            }
+        }
+    }
+
+    freeaddrinfo(ressave);
+    return return_value;
 }

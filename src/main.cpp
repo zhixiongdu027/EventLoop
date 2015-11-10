@@ -2,39 +2,31 @@
 #include "EventLoop/EventLoop.h"
 #include "EventLoop/SockHelp/SocketHelp.h"
 
-
-void task_cb(EventLoopPtr &loop, ChannelPtr &channel_ptr, void *user_arg, bool *again) {
-    StreamBuffer *read_buffer = channel_ptr->get_read_buffer();
-    channel_ptr->send(read_buffer->peek(), read_buffer->peek_able());
-}
-
-void client_cb(EventLoopPtr &loop, ChannelPtr &channel_ptr, ChannelEvent events) {
-    std::cout << "client : " << channel_ptr->context.u64 << std::endl;
-    if (events == EVENT_IN) {
-        if (channel_ptr->read() <= 0) {
-            loop->erase_channel(channel_ptr->id());
-            return;
-        }
-        loop->add_channel_lifetime(channel_ptr->id(), 30);
-        loop->add_task_on_channel(channel_ptr->id(), 10, nullptr, task_cb);
-    }
-    else {
-        std::cout << "events :" << events << std::endl;
-        loop->erase_channel(channel_ptr->id());
-    }
-};
-
-void listen_cb(EventLoopPtr &loop, ChannelPtr &channel_ptr, ChannelEvent events) {
-    if (events == EVENT_IN) {
-        std::cout << "listen : " << channel_ptr->context.u64 << std::endl;
-        int fd = ::accept(channel_ptr->fd(), nullptr, nullptr);
-        loop->add_channel(fd, true, false, 30, client_cb)->context.u64 = 90000;
-    }
-};
-
 int main() {
-    int listen_fd = create_tcp_listen(10000, 1);
-    EventLoop loop;
-    loop.add_channel(listen_fd, true, false, -1, listen_cb)->context.u64 = 10000;
-    loop.start();
+    int myfd;
+    if (tcp_nonblock_connect("www.google.com", 80, &myfd) != NONBLOCK_CONNECT_ERROR);
+    {
+        EventLoop loop;
+        loop.add_connecting_channel(myfd, 10, 50,
+                                    [](EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent event) {
+                                        std::cout << __LINE__ << std::endl;
+                                        std::cout << "EVENTS :" << event << std::endl;
+                                        if (event == EVENT_IN) {
+                                            if (channel_ptr->read() <= 0) {
+                                                std::cout << __LINE__ << std::endl;
+                                                loop_ptr->erase_channel(channel_ptr->id());
+                                            }
+                                            else {
+                                                std::cout << __LINE__ << std::endl;
+                                                write(1, channel_ptr->get_read_buffer()->peek(),
+                                                      channel_ptr->get_read_buffer()->peek_able());
+                                            }
+                                        }
+                                        else {
+                                            std::cout << __LINE__ << std::endl;
+                                            loop_ptr->erase_channel(channel_ptr->id());
+                                        }
+                                    })->send("GET /\r\n\r\n", sizeof("GET /\r\n\r\n"));
+        loop.start();
+    }
 }

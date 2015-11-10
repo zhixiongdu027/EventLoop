@@ -22,6 +22,19 @@ public:
 
     ChannelPtr &add_channel(int fd, bool is_socket, bool is_nonblock, ssize_t lifetime, ChannelCallback io_event_cb);
 
+    ChannelPtr &add_connecting_channel(int fd, ssize_t connect_time, ssize_t lifetime, ChannelCallback io_event_cb);
+
+    inline void erase_channel(ChannelId id) noexcept {
+        channel_event_map_[id] |= TODO_ERASE;
+    }
+
+    inline ChannelPtr &get_channel(const ChannelId id) noexcept {
+        if (channel_map_.find(id) != channel_map_.end()) {
+            return channel_map_[id];
+        }
+        return null_channel_ptr;
+    }
+
     inline void add_task_on_loop(size_t seconds, void *user_arg,
                                  std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
         task_wheel_.regist(seconds,
@@ -48,10 +61,6 @@ public:
                                    }
                                });
         }
-    }
-
-    inline void erase_channel(ChannelId id) noexcept {
-        channel_event_map_[id] |= TODO_ERASE;
     }
 
     inline void add_channel_lifetime(ChannelId channel_id, size_t seconds) {
@@ -81,13 +90,6 @@ public:
 
     inline void stop() noexcept {
         quit_ = true;
-    }
-
-    inline ChannelPtr &get_channel(const ChannelId id) noexcept {
-        if (channel_map_.find(id) != channel_map_.end()) {
-            return channel_map_[id];
-        }
-        return null_channel_ptr;
     }
 
 private:

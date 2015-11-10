@@ -30,7 +30,7 @@ void Channel::send_to_normal() {
             if (errno == EINTR) {
                 goto write_begin_label;
             }
-            channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SENDERR);
+            channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SEND_ERR);
         }
         else if (!write_buffer_.empty()) {
             channel_event_map_[id()] |= TODO_REGO;
@@ -51,7 +51,7 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
         if (errno == EINTR) {
             goto write_begin_label;
         }
-        channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SENDERR);
+        channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SEND_ERR);
     }
     else if (static_cast<size_t >(write_res) < len) {
         write_buffer_.append(static_cast<const char *>(data) + write_res, len - write_res);
@@ -60,10 +60,9 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
 }
 
 void Channel::send_to_socket() {
-    if (!write_buffer_.empty()) {
+    if (is_connected_ && !write_buffer_.empty()) {
         write_begin_label:
-        ssize_t write_res = ::send(fd(), write_buffer_.peek(), write_buffer_.peek_able(),
-                                   MSG_DONTWAIT | MSG_NOSIGNAL);
+        ssize_t write_res = ::send(fd(), write_buffer_.peek(), write_buffer_.peek_able(), MSG_DONTWAIT | MSG_NOSIGNAL);
         if (write_res < 0) {
             if (errno == EINTR) {
                 goto write_begin_label;
@@ -72,7 +71,7 @@ void Channel::send_to_socket() {
                 channel_event_map_[id()] |= TODO_REGO;
             }
             else {
-                channel_event_map_[id()] |= EVENT_SENDERR;
+                channel_event_map_[id()] |= EVENT_SEND_ERR;
             }
         }
         else {
@@ -112,7 +111,7 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
             channel_event_map_[id()] |= TODO_REGO;
         }
         else {
-            channel_event_map_[id()] |= EVENT_SENDERR;
+            channel_event_map_[id()] |= EVENT_SEND_ERR;
         }
     }
     else if (static_cast<size_t >(write_res) == write_buffer_.peek_able() + len) {
