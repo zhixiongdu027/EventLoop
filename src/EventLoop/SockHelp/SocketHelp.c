@@ -105,7 +105,7 @@ NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short po
     if (res != NULL) {
         *sock_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
         if (*sock_fd < 0 || fcntl(*sock_fd, F_SETFL, O_NONBLOCK) < 0) {
-            close(sock_fd);
+            close(*sock_fd);
         }
         else {
             int connect_res = connect(*sock_fd, res->ai_addr, res->ai_addrlen);
@@ -116,7 +116,7 @@ NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short po
                 return_value = NONBLOCK_CONNECT_OK;
             }
             else {
-                close(sock_fd);
+                close(*sock_fd);
                 *sock_fd = -1;
                 return_value = NONBLOCK_CONNECT_ERROR;
             }

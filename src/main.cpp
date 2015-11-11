@@ -4,10 +4,9 @@
 
 int main() {
     int myfd;
-    if (tcp_nonblock_connect("www.google.com", 80, &myfd) != NONBLOCK_CONNECT_ERROR);
-    {
+    if (tcp_nonblock_connect("www.qq.com", 80, &myfd) != NONBLOCK_CONNECT_ERROR) {
         EventLoop loop;
-        loop.add_connecting_channel(myfd, 10, 50,
+        loop.add_connecting_channel(myfd, -1, 50,
                                     [](EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent event) {
                                         std::cout << __LINE__ << std::endl;
                                         std::cout << "EVENTS :" << event << std::endl;
