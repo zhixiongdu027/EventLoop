@@ -8,7 +8,7 @@
 #include "StreamBuffer.h"
 
 size_t StreamBuffer::DefaultPrependable = 12;
-size_t StreamBuffer::DefaultCapacity = 1024;
+size_t StreamBuffer::DefaultCapacity = 1012;
 
 StreamBuffer::StreamBuffer(size_t default_size) {
     memory_ = new char[default_size + DefaultPrependable];
