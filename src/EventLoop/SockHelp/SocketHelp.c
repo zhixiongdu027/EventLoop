@@ -24,9 +24,9 @@ int tcp_connect(const char *host, unsigned short port) {
     }
 
     ressave = res;
-    int sock_fd;
+    int sock_fd = -1;
 
-    while (res != NULL) {
+    for (; res != NULL; res = res->ai_next) {
         sock_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
         if (sock_fd < 0) {
             continue;
@@ -38,7 +38,6 @@ int tcp_connect(const char *host, unsigned short port) {
             close(sock_fd);
             sock_fd = -1;
         }
-        res = res->ai_next;
     };
 
     freeaddrinfo(ressave);
@@ -167,9 +166,8 @@ int udp_connect(const char *host, unsigned short port) {
 
     ressave = res;
 
-    int sock_fd;
-
-    while (res != NULL) {
+    int sock_fd = -1;
+    for (; res != NULL; res = res->ai_next) {
         sock_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
         if (sock_fd < 0) {
             continue;
@@ -181,7 +179,6 @@ int udp_connect(const char *host, unsigned short port) {
             close(sock_fd);
             sock_fd = -1;
         }
-        res = res->ai_next;
     };
 
     freeaddrinfo(ressave);
