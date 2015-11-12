@@ -146,7 +146,11 @@ int create_udp_listen(unsigned short port, int reuse) {
     addr.sin_addr.s_addr = htobe32(INADDR_ANY);
     addr.sin_port = htobe16(port);
 
-    return bind(sock_fd, (const struct sockaddr *) &addr, sizeof(addr));
+    if (bind(sock_fd, (const struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        close(sock_fd);
+        return -1;
+    };
+    return sock_fd;
 }
 
 int udp_connect(const char *host, unsigned short port) {

@@ -12,9 +12,9 @@ set(SOURCE_FILES
         src/EventLoop/StreamBuffer.cpp
         src/EventLoop/StreamBuffer.h
         src/EventLoop/TaskWheel.h
-        src/EventLoop/SockHelp/SocketHelp.c
-        src/EventLoop/SockHelp/SocketHelp.h
+        src/EventLoop/SocketHelp.c
+        src/EventLoop/SocketHelp.h
         src/main.cpp
-)
+        )
 
 add_executable(EventLoop ${SOURCE_FILES})
