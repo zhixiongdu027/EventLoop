@@ -9,13 +9,13 @@ template<class T>
 class NoExitWorkerPool {
 public:
     template<typename... Args>
-    void add_worker(Args &... __args) {
-        thread_vec_.emplace_back(T(__args...));
+    void add_worker(Args &... args) {
+        thread_vec_.emplace_back(T(args...));
     }
 
     template<typename... Args>
-    void add_worker(Args &&... __args) {
-        thread_vec_.emplace_back(T(__args...));
+    void add_worker(Args &&... args) {
+        thread_vec_.emplace_back(T(args...));
     }
 
     inline void join_all() {
