@@ -10,30 +10,27 @@ class WorkerPool {
 public:
     template<typename... Args>
     void add_worker(Args &... __args) {
-        t_vec_.emplace_back(__args...);
-        thread_vec_.emplace_back(*t_vec_.rbegin());
+        thread_vec_.emplace_back(T(__args...));
     }
 
     template<typename... Args>
     void add_worker(Args &&... __args) {
-        t_vec_.emplace_back(__args...);
-        thread_vec_.emplace_back(*t_vec_.rbegin());
+        thread_vec_.emplace_back(T(__args...));
     }
 
-    inline void join() {
+    inline void join_all() {
         for (auto &item :thread_vec_) {
             item.join();
         }
     }
 
-    inline void detach() {
+    inline void detach_all() {
         for (auto &item :thread_vec_) {
             item.detach();
         }
     }
 
 private:
-    std::vector<T> t_vec_;
     std::vector<std::thread> thread_vec_;
 };
 
