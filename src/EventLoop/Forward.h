@@ -10,11 +10,8 @@
 #include <memory>
 #include <functional>
 
-
 class EventLoop;
 typedef EventLoop* const EventLoopPtr;
-
-class StreamBuffer;
 
 class Channel;
 typedef uint32_t ChannelEvent;
@@ -44,6 +41,5 @@ typedef union {
 } Context;
 
 typedef std::function<void(void *)> ContextDeleter;
-
 
 #endif //EVENTLOOP_CHANNELFORWARD_H

@@ -162,20 +162,20 @@ void StreamBuffer::replace(size_t position, size_t replace_len, const void *data
     }
 }
 
-ssize_t StreamBuffer::read(int fd, size_t len) noexcept{
+ssize_t StreamBuffer::read(int fd, size_t len) noexcept {
     ensure_append_size(len);
     ssize_t read_res = ::read(fd, append_pos(), len);
-    if(read_res>0) {
+    if (read_res > 0) {
         append_pos_ += read_res;
     }
     return read_res;
 }
 
-ssize_t StreamBuffer::write(int fd, size_t len) noexcept{
+ssize_t StreamBuffer::write(int fd, size_t len) noexcept {
     assert(peek_able() >= len);
     ssize_t write_res = ::write(fd, peek(), len);
     if (write_res > 0) {
-       discard(static_cast<size_t>(write_res));
+        discard(static_cast<size_t>(write_res));
     }
     return write_res;
 }
@@ -192,14 +192,12 @@ ssize_t StreamBuffer::write(int fd, const void *data, size_t len) noexcept {
     if (write_res < 0) {
         return write_res;
     }
-    else if (static_cast<size_t>(write_res) >= peek_able())
-    {
+    else if (static_cast<size_t>(write_res) >= peek_able()) {
         size_t use_data_len = static_cast<size_t>(write_res) - peek_able();
         discard_all();
         return use_data_len;
     }
-    else
-    {
+    else {
         discard(static_cast<size_t>(write_res));
         return 0;
     }
@@ -223,8 +221,7 @@ ssize_t StreamBuffer::read_some(int fd) noexcept {
         append_pos_ = capacity_;
         append(extra_buff, use_extra_len);
     }
-    else
-    {
+    else {
         append_pos_ += read_res;
     }
     return read_res;

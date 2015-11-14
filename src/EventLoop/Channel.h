@@ -10,8 +10,9 @@
 #include <unordered_map>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "StreamBuffer.h"
-#include "TaskWheel.h"
+#include <string.h>
+#include "tool/TaskWheel.h"
+#include "tool/StreamBuffer.h"
 
 class Channel {
     friend class EventLoop;

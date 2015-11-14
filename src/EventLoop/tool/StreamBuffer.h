@@ -83,7 +83,7 @@ public:
             discard(len);
         }
         else if (position + len < peek_able()) {
-            memmove(peek(position) , peek(position+len), peek_able() - position - len);
+            memmove(peek(position), peek(position + len), peek_able() - position - len);
             append_pos_ -= len;
         }
         else if (position <= peek_able()) {
@@ -266,7 +266,7 @@ public:
 
     ssize_t read(int fd, size_t len) noexcept;
 
-    ssize_t write(int fd ,size_t len) noexcept;
+    ssize_t write(int fd, size_t len) noexcept;
 
     ssize_t write(int fd, const void *data, size_t len) noexcept;
 
