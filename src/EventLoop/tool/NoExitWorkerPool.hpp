@@ -6,7 +6,7 @@
 #include <thread>
 
 template<class T>
-class WorkerPool {
+class NoExitWorkerPool {
 public:
     template<typename... Args>
     void add_worker(Args &... __args) {
@@ -28,6 +28,10 @@ public:
         for (auto &item :thread_vec_) {
             item.detach();
         }
+    }
+
+    inline size_t worker_size() {
+        return thread_vec_.size();
     }
 
 private:

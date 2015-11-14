@@ -15,7 +15,7 @@ set(SOURCE_FILES
         src/EventLoop/tool/SocketHelp.c
         src/EventLoop/tool/SocketHelp.h
         src/EventLoop/tool/ConcurrentQueue.hpp
-        src/EventLoop/tool/WorkerPool.hpp
+        src/EventLoop/tool/NoExitWorkerPool.hpp
         src/main.cpp
         )
 

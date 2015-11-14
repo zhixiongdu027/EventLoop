@@ -1,5 +1,5 @@
 #include "EventLoop/tool/ConcurrentQueue.hpp"
-#include "EventLoop/tool/WorkerPool.hpp"
+#include "EventLoop/tool/NoExitWorkerPool.hpp"
 #include <jsoncpp/json/json.h>
 #include <unistd.h>
 
@@ -27,7 +27,7 @@ public:
 int main() {
 
     ConcurrentQueue<std::shared_ptr<Json::Value> > queue;
-    WorkerPool<Worker> pool;
+    NoExitWorkerPool<Worker> pool;
     for (int i = 0; i < 8; ++i) {
         pool.add_worker(i, queue);
     }
