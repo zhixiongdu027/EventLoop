@@ -29,7 +29,7 @@ public:
         return id_;
     }
 
-    inline void set_event_cb(ChannelCallback &cb) noexcept {
+    inline void set_event_cb(ChannelCallback cb) noexcept {
         event_cb_ = cb;
     }
 
