@@ -2,6 +2,9 @@
 // Created by adugeek on 11/13/15.
 //
 
+#ifndef EVENTLOOP_TOOL_CONCURRENTQUEUE_H
+#define EVENTLOOP_TOOL_CONCURRENTQUEUE_H
+
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -47,3 +50,5 @@ private:
     std::mutex mutex_;
     std::condition_variable cond_;
 };
+
+#endif  //EVENTLOOP_TOOL_CONCURRENTQUEUE_H

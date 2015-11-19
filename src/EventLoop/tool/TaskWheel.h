@@ -3,8 +3,8 @@
 
 // Author: adugeek
 
-#ifndef EVENTLOOP_TIMERWHEEL_H
-#define EVENTLOOP_TIMERWHEEL_H
+#ifndef EVENTLOOP_TOOL_TASKWHEEL_H
+#define EVENTLOOP_TOOL_TASKWHEEL_H
 
 #include <vector>
 #include <unordered_map>
@@ -40,4 +40,4 @@ private:
     size_t current_index_;
 };
 
-#endif // EVENTLOOP_WHEEL_H
+#endif // EVENTLOOP_TOOL_TASKWHEEL_H

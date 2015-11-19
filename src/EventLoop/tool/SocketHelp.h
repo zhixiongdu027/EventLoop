@@ -5,8 +5,8 @@
  * Created on November 4, 2014, 2:29 PM
  */
 
-#ifndef SOCKETHELP_H
-#define SOCKETHELP_H
+#ifndef EVENTLOOP_TOOL_SOCKETHELP_H
+#define EVENTLOOP_TOOL_SOCKETHELP_H
 
 #ifdef    __cplusplus
 extern "C"
@@ -35,5 +35,5 @@ int set_no_block(int fd);
 }
 #endif
 
-#endif	/* SOCKETHELP_H */
+#endif	/* EVENTLOOP_TOOL_SOCKETHELP_H */
 

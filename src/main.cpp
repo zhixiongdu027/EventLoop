@@ -1,43 +1,69 @@
-#include "EventLoop/tool/ConcurrentQueue.hpp"
-#include "EventLoop/tool/NoExitWorkerPool.hpp"
-#include <jsoncpp/json/json.h>
-#include <unistd.h>
-
-
-class Worker {
-public:
-    Worker(int id, ConcurrentQueue<std::shared_ptr<Json::Value> > &queue) : queue_(queue), id_(id) {
-        static int i = 0;
-        printf("num :%d\n", i++);
-    };
-
-    void operator()() {
-        while (true) {
-            std::shared_ptr<Json::Value> ptr = queue_.pop();
-            if (ptr != nullptr) {
-                printf("id :%d ,value : %d\n", id_, ptr->get("value", 0).asInt());
-            }
-        }
-    }
-
-    ConcurrentQueue<std::shared_ptr<Json::Value> > &queue_;
-    int id_;
-};
-
-int main() {
-
-    ConcurrentQueue<std::shared_ptr<Json::Value> > queue;
-    NoExitWorkerPool<Worker> pool;
-    for (int i = 0; i < 8; ++i) {
-        pool.add_worker(i, queue);
-    }
-    pool.detach_all();
-
-//    for(int i=0;i<10000000;++i){
-//        std::shared_ptr<Json::Value> ptr(new Json::Value);
-//        ptr->operator[]("value")=i;
-//        queue.push(ptr);
+////简单来讲就是这样了。
+////
+////
+////先定义 Pool
+//#include <vector>
+//#include <thread>
+//#include <unistd.h>
+//#include <iostream>
+//#include <unordered_map>
+//#include <unordered_set>
+//
+//
+//
+//
+//template <class T>
+//class Worker
+//{
+//public:
+//    template <class ...Args>
+//    void operator()(Args& ...args)
+//    {
+//        T(args...)->operator()();
+//        worker_set_.insert(id_);
+//    };
+//    const int id_;
+//    std::unordered_set<int> & worker_set_;
+//    ~Worker(){};
+//};
+//
+//template<class T>
+//class WorkerPool {
+//public:
+//    template<typename... Args>
+//    void add_worker(Args &... args)
+//    {
+//        for(auto& item :has_exit_)
+//        {
+//            thread_map_.erase(item);
+//        }
 //    }
+//private:
+//    std::unordered_map<std::thread::id, std::thread > thread_map_;
+//    std::unordered_set<std::thread::id> has_exit_;
+//};
+//
+////在定义一个 重载了operator()的类
+//class A {
+//public:
+//    A(int i):id_(i){};
+//    void operator()() {
+//        while (true) {
+//            sleep(1);
+//            printf("i am running :%d\n",id_);
+//        }
+//    }
+//    int id_;
+//};
+////        使用
+//int main() {
+//
+//    WorkerPool<A> pool;
+//    for (int i = 0; i < 3; ++i) {
+//        pool.add_worker(i);
+//    }
+//    pool.detach();
+//    sleep(5);
+//}
 
-    sleep(4);
-}
+

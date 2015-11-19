@@ -3,8 +3,8 @@
 
 // Author: adugeek
 
-#ifndef STREAMBUFFER_H
-#define STREAMBUFFER_H
+#ifndef EVENTLOOP_TOOL_STREAMBUFFER_H
+#define EVENTLOOP_TOOL_STREAMBUFFER_H
 
 #include <assert.h>
 #include <string.h>
@@ -303,4 +303,4 @@ namespace std {
     void swap(StreamBuffer &lhs, StreamBuffer &rhs);
 };
 
-#endif  // STREAMBUFFER_H
+#endif  // EVENTLOOP_TOOL_STREAMBUFFER_H
