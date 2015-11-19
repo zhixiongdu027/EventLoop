@@ -8,18 +8,35 @@
 #include <thread>
 
 template<class T>
-class WorkerPool {
+class ThreadPool {
 public:
     template<typename... Args>
     void add_worker(Args &... args) {
         thread_vec_.emplace_back(T(args...));
     }
 
+    template<typename... Args>
+    void add_worker(Args &&... args) noexcept {
+        thread_vec_.emplace_back(T(args...));
+    }
+
+    inline void detach_all() {
+        for (auto &item : thread_vec_) {
+            item.detach();
+        }
+    }
+
+    inline void join_all() {
+        for (auto &item :thread_vec_) {
+            item.join();
+        }
+    }
+
 private:
     std::vector<std::thread> thread_vec_;
 };
 
-#endif //EVNETLOOP_TOOL_THREAD_H
+#endif //EVNETLOOP_TOOL_THREADPOOL_H
 
 
 
