@@ -3,8 +3,8 @@
 
 // Author: adugeek
 
-#ifndef EVENTLOOP_CHANNELFORWARD_H
-#define EVENTLOOP_CHANNELFORWARD_H
+#ifndef EVENTLOOP_FORWARD_H
+#define EVENTLOOP_FORWARD_H
 
 #include <stdint.h>
 #include <memory>
@@ -42,4 +42,4 @@ typedef union {
 
 typedef std::function<void(void *)> ContextDeleter;
 
-#endif //EVENTLOOP_CHANNELFORWARD_H
+#endif //EVENTLOOP_FORWARD_H
