@@ -1,24 +1,24 @@
 #include "EventLoop/EventLoop.h"
 #include "EventLoop/tool/SocketHelp.h"
 
+void channel_task(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, void *usr_arg, bool *again) {
+    StreamBuffer *buffer = channel_ptr->get_read_buffer();
+    channel_ptr->send(buffer->peek(), buffer->peek_able());
+    *again = true;
+}
+
 void client_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent events) {
     if (events != EVENT_IN || channel_ptr->read() <= 0) {
         loop_ptr->erase_channel(channel_ptr->id());
         return;
     }
-
     StreamBuffer *buffer = channel_ptr->get_read_buffer();
     write(1, "I read : \n", sizeof("I read : \n") - 1);
     write(1, buffer->peek(), buffer->peek_able());
     write(1, "\nI will echo every 5 seconds\n", sizeof("\nI will echo each 5 seconds\n"));
 
     if (channel_ptr->context.u32 == 0) {
-        loop_ptr->add_task_on_channel(channel_ptr->id(), 3, nullptr,
-                                      [](EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, void *usr_arg, bool *again) {
-                                          StreamBuffer *buffer = channel_ptr->get_read_buffer();
-                                          channel_ptr->send(buffer->peek(), buffer->peek_able());
-                                          *again = true;
-                                      });
+        loop_ptr->add_task_on_channel(channel_ptr->id(), 3, nullptr, channel_task);
         channel_ptr->context.u32 = 1;
     }
 }
