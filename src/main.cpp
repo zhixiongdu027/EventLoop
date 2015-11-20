@@ -1,6 +1,5 @@
 #include "EventLoop/EventLoop.h"
 #include "EventLoop/tool/SocketHelp.h"
-#include "EventLoop/Forward.h"
 
 void client_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent events) {
     if (events != EVENT_IN || channel_ptr->read() <= 0) {
