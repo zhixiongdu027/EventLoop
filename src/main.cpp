@@ -1,69 +1,41 @@
-////简单来讲就是这样了。
-////
-////
-////先定义 Pool
-//#include <vector>
-//#include <thread>
-//#include <unistd.h>
-//#include <iostream>
-//#include <unordered_map>
-//#include <unordered_set>
-//
-//
-//
-//
-//template <class T>
-//class Worker
-//{
-//public:
-//    template <class ...Args>
-//    void operator()(Args& ...args)
-//    {
-//        T(args...)->operator()();
-//        worker_set_.insert(id_);
-//    };
-//    const int id_;
-//    std::unordered_set<int> & worker_set_;
-//    ~Worker(){};
-//};
-//
-//template<class T>
-//class WorkerPool {
-//public:
-//    template<typename... Args>
-//    void add_worker(Args &... args)
-//    {
-//        for(auto& item :has_exit_)
-//        {
-//            thread_map_.erase(item);
-//        }
-//    }
-//private:
-//    std::unordered_map<std::thread::id, std::thread > thread_map_;
-//    std::unordered_set<std::thread::id> has_exit_;
-//};
-//
-////在定义一个 重载了operator()的类
-//class A {
-//public:
-//    A(int i):id_(i){};
-//    void operator()() {
-//        while (true) {
-//            sleep(1);
-//            printf("i am running :%d\n",id_);
-//        }
-//    }
-//    int id_;
-//};
-////        使用
-//int main() {
-//
-//    WorkerPool<A> pool;
-//    for (int i = 0; i < 3; ++i) {
-//        pool.add_worker(i);
-//    }
-//    pool.detach();
-//    sleep(5);
-//}
+#include "EventLoop/EventLoop.h"
+#include "EventLoop/tool/SocketHelp.h"
+#include "EventLoop/Forward.h"
 
+void client_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent events) {
+    if (events != EVENT_IN || channel_ptr->read() <= 0) {
+        loop_ptr->erase_channel(channel_ptr->id());
+        return;
+    }
+
+    StreamBuffer *buffer = channel_ptr->get_read_buffer();
+    write(1, "I read : \n", sizeof("I read : \n") - 1);
+    write(1, buffer->peek(), buffer->peek_able());
+    write(1, "\nI will echo every 5 seconds\n", sizeof("\nI will echo each 5 seconds\n"));
+
+    if (channel_ptr->context.u32 == 0) {
+        loop_ptr->add_task_on_channel(channel_ptr->id(), 3, nullptr,
+                                      [](EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, void *usr_arg, bool *again) {
+                                          StreamBuffer *buffer = channel_ptr->get_read_buffer();
+                                          channel_ptr->send(buffer->peek(), buffer->peek_able());
+                                          *again = true;
+                                      });
+        channel_ptr->context.u32 = 1;
+    }
+}
+
+void listen_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent events) {
+    if (events != EVENT_IN) {
+        loop_ptr->erase_channel(channel_ptr->id());
+    }
+    int new_fd = accept(channel_ptr->fd(), nullptr, nullptr);
+    loop_ptr->add_channel(new_fd, true, false, 30, client_cb);
+}
+
+int main() {
+    int listen_fd = create_tcp_listen(10000, 1);
+    EventLoop loop;
+    loop.add_channel(listen_fd, true, true, -1, listen_cb);
+    loop.start();
+}
 
