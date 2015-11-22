@@ -121,7 +121,7 @@ private:
     void handle_cb() noexcept;
 
     inline int create_epoll_fd() noexcept {
-        return epoll_ = epoll_create(1);
+        return epoll_ = epoll_create1(EPOLL_CLOEXEC);
     }
 
     int create_timer_fd() noexcept;
