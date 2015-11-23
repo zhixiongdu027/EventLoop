@@ -40,14 +40,14 @@ public:
 
     void push(T &&item) {
         std::unique_lock<std::mutex> unique_lock(mutex_);
-        queue_.push(std::move(item));
+        queue_.emplace(std::move(item));
         unique_lock.unlock();
         cond_.notify_one();
     }
 
 private:
     std::queue<T> queue_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     std::condition_variable cond_;
 };
 
