@@ -12,43 +12,42 @@
 template<typename T>
 class ConcurrentQueue {
 public:
+
+    void push(T &item) {
+        {
+            std::unique_lock<std::mutex> unique_lock(mutex_);
+            queue_.push(item);
+        }
+        cond_.notify_one();
+    }
+
+    void push(T &&item) {
+        {
+            std::unique_lock<std::mutex> unique_lock(mutex_);
+            queue_.emplace(std::move(item));
+        }
+        cond_.notify_one();
+    }
+
     T pop() {
         std::unique_lock<std::mutex> unique_lock(mutex_);
         while (queue_.empty()) {
             cond_.wait(unique_lock);
         }
-        auto item = queue_.front();
+        T item(std::move(queue_.front()));
         queue_.pop();
         return item;
     }
 
-    void pop(T &item) {
+    size_t size() const {
         std::unique_lock<std::mutex> unique_lock(mutex_);
-        while (queue_.empty()) {
-            cond_.wait(unique_lock);
-        }
-        item = queue_.front();
-        queue_.pop();
-    }
-
-    void push(T &item) {
-        std::unique_lock<std::mutex> unique_lock(mutex_);
-        queue_.push(item);
-        unique_lock.unlock();
-        cond_.notify_one();
-    }
-
-    void push(T &&item) {
-        std::unique_lock<std::mutex> unique_lock(mutex_);
-        queue_.emplace(std::move(item));
-        unique_lock.unlock();
-        cond_.notify_one();
+        return queue_.size();
     }
 
 private:
-    std::queue<T> queue_;
     mutable std::mutex mutex_;
     std::condition_variable cond_;
+    std::queue<T> queue_;
 };
 
 #endif  //EVENTLOOP_TOOL_CONCURRENTQUEUE_H
