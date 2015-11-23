@@ -132,6 +132,10 @@ public:
         return nullptr;
     }
 
+    inline char *peek_begin()noexcept {
+        return memory() + peek_pos_;
+    }
+
     inline char *peek_end() noexcept {
         return memory() + append_pos_;
     }
