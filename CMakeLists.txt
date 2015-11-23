@@ -20,4 +20,3 @@ set(SOURCE_FILES
         )
 
 add_executable(EventLoop ${SOURCE_FILES})
-target_link_libraries(EventLoop pthread jsoncpp)
