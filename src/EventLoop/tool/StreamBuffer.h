@@ -132,6 +132,10 @@ public:
         return nullptr;
     }
 
+    inline char *peek_end() noexcept {
+        return memory() + append_pos_;
+    }
+
     inline const char *peek(size_t position = 0) const noexcept {
         if (position < peek_able()) {
             return memory() + peek_pos_ + position;
