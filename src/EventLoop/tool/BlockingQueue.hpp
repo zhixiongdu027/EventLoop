@@ -10,9 +10,8 @@
 #include <condition_variable>
 
 template<typename T>
-class ConcurrentQueue {
+class BlockingQueue {
 public:
-
     void push(const T &item) {
         {
             std::unique_lock<std::mutex> unique_lock(mutex_);

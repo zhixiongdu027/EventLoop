@@ -14,7 +14,7 @@ set(SOURCE_FILES
         src/EventLoop/tool/TaskWheel.h
         src/EventLoop/tool/SocketHelp.c
         src/EventLoop/tool/SocketHelp.h
-        src/EventLoop/tool/ConcurrentQueue.hpp
+        src/EventLoop/tool/BlockingQueue.hpp
         src/EventLoop/tool/ThreadPool.hpp
         src/main.cpp
         )
