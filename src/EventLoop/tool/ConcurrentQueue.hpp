@@ -13,7 +13,7 @@ template<typename T>
 class ConcurrentQueue {
 public:
 
-    void push(T &item) {
+    void push(const T &item) {
         {
             std::unique_lock<std::mutex> unique_lock(mutex_);
             queue_.push(item);
