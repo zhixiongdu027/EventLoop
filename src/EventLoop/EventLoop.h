@@ -69,7 +69,7 @@ public:
             channel_lives_map_[channel_id]++;
             task_wheel_.regist(seconds,
                                [this, channel_id]() {
-                                   size_t &channel_lives = channel_lives_map_[channel_id];
+                                   size_t channel_lives = channel_lives_map_[channel_id];
                                    if (channel_lives == 0) {
                                        channel_lives_map_.erase(channel_id);
                                    }
