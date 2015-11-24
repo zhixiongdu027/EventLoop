@@ -12,12 +12,12 @@ class ThreadPool {
 public:
     template<typename... Args>
     void add_worker(Args &... args) {
-        thread_vec_.emplace_back(T(args...));
+        thread_vec_.push_back(T(args...));
     }
 
     template<typename... Args>
     void add_worker(Args &&... args) noexcept {
-        thread_vec_.emplace_back(T(args...));
+        thread_vec_.emplace_back(std::move(T(args...)));
     }
 
     inline void detach_all() {

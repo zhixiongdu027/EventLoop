@@ -12,6 +12,7 @@ void client_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent eve
         loop_ptr->erase_channel(channel_ptr->id());
         return;
     }
+
     StreamBuffer *buffer = channel_ptr->get_read_buffer();
     write(1, "I read : \n", sizeof("I read : \n") - 1);
     write(1, buffer->peek(), buffer->peek_able());
