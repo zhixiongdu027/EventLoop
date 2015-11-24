@@ -16,7 +16,6 @@ set(SOURCE_FILES
         src/EventLoop/tool/SocketHelp.h
         src/EventLoop/tool/BlockingQueue.hpp
         src/EventLoop/tool/ThreadPool.hpp
-        src/main.cpp
-        )
+        src/main.cpp)
 
 add_executable(EventLoop ${SOURCE_FILES})
