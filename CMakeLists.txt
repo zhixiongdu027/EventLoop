@@ -3,7 +3,7 @@ project(EventLoop)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g  -Wall -W -std=c++11  -O3")
 
-set(SOURCE_FILES
+set(EVENTLOOP_SOURCE_FILES
         src/EventLoop/Channel.cpp
         src/EventLoop/Channel.h
         src/EventLoop/Forward.h
@@ -16,6 +16,10 @@ set(SOURCE_FILES
         src/EventLoop/tool/SocketHelp.h
         src/EventLoop/tool/BlockingQueue.hpp
         src/EventLoop/tool/ThreadPool.hpp
-        src/main.cpp)
+        )
 
-add_executable(EventLoop ${SOURCE_FILES})
+add_library(eventloop ${EVENTLOOP_SOURCE_FILES})
+
+include_directories("${PROJECT_SOURCE_DIR}/src")
+
+add_subdirectory("src/example")
