@@ -15,10 +15,13 @@ public:
         thread_vec_.push_back(T(args...));
     }
 
+#if __cplusplus >= 201103L
     template<typename... Args>
     void add_worker(Args &&... args) noexcept {
         thread_vec_.emplace_back(std::move(T(args...)));
     }
+
+#endif
 
     inline void detach_all() {
         for (auto &item : thread_vec_) {
