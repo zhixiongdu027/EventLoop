@@ -22,4 +22,4 @@ add_library(eventloop ${EVENTLOOP_SOURCE_FILES})
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
-add_subdirectory("src/example")
+add_subdirectory("example")
