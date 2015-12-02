@@ -21,6 +21,7 @@ public:
         thread_vec_.emplace_back(std::move(T(args...)));
     }
 
+
 #endif
 
     inline void detach_all() {
