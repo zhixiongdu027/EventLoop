@@ -272,6 +272,10 @@ public:
         replace(position, replace_len, &val, sizeof(uint64_t));
     }
 
+    int read_n(int fd, size_t len, ssize_t *actual_read);
+
+    int write_n(int fd, size_t len, ssize_t *actual_write);
+
     ssize_t read(int fd, size_t len) noexcept;
 
     ssize_t write(int fd, size_t len) noexcept;
