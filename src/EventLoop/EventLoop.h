@@ -36,36 +36,34 @@ public:
         return null_channel_ptr;
     }
 
-    inline void add_task_on_loop(size_t seconds, void *user_arg,
+    inline void add_task_on_loop(bool imd_exec, size_t each_seconds, void *user_arg,
                                  std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
         if (init_status_ == INIT) {
             init();
         }
-        task_wheel_.regist(seconds,
-                           [this, seconds, cb, user_arg]() {
-                               bool again = false;
-                               cb(this, user_arg, &again);
-                               if (again) {
-                                   add_task_on_loop(seconds, user_arg, cb);
-                               }
-                           });
-    }
-
-    inline void add_task_on_channel(ChannelId channel_id, size_t seconds, void *user_arg,
-                                    std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg, bool *again)> cb) {
-        if (channel_map_.find(channel_id) != channel_map_.end()) {
-            task_wheel_.regist(seconds,
-                               [this, channel_id, seconds, cb, user_arg]() {
-                                   if (channel_map_.find(channel_id) != channel_map_.end()) {
-                                       bool again = false;
-                                       cb(this, channel_map_[channel_id], user_arg, &again);
-                                       if (again) {
-                                           add_task_on_channel(channel_id, seconds, user_arg, cb);
-                                       }
-                                   }
-                               });
+        bool again = false;
+        if (imd_exec) {
+            cb(this, user_arg, &again);
+        }
+        if (again) {
+            add_task_on_loop_recursive(each_seconds, user_arg, std::move(cb));
         }
     }
+
+
+    inline void add_task_on_channel(bool imd_exec, ChannelId channel_id, size_t seconds, void *user_arg,
+                                    std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg, bool *again)> cb) {
+        if (channel_map_.find(channel_id) != channel_map_.end()) {
+            bool again = false;
+            if (imd_exec) {
+                cb(this, channel_map_[channel_id], user_arg, &again);
+            }
+            if (again) {
+                add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
+            }
+        }
+    }
+
 
     inline void add_channel_lifetime(ChannelId channel_id, size_t seconds) {
         if (channel_map_.find(channel_id) != channel_map_.end()) {
@@ -133,6 +131,36 @@ private:
 
     inline bool unlawful_fd(int fd) const noexcept {
         return (fd < 0 || fd == epoll_ || fd == timer_);
+    }
+
+
+    inline void add_task_on_loop_recursive(size_t seconds, void *user_arg,
+                                           std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
+        task_wheel_.regist(seconds,
+                           [this, seconds, cb, user_arg]() {
+                               bool again = false;
+                               cb(this, user_arg, &again);
+                               if (again) {
+                                   add_task_on_loop_recursive(seconds, user_arg, std::move(cb));
+                               }
+                           });
+    }
+
+    inline void add_task_on_channel_recursive(ChannelId channel_id, size_t seconds, void *user_arg,
+                                              std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg,
+                                                                 bool *again)> cb) {
+        if (channel_map_.find(channel_id) != channel_map_.end()) {
+            task_wheel_.regist(seconds,
+                               [this, channel_id, seconds, cb, user_arg]() {
+                                   if (channel_map_.find(channel_id) != channel_map_.end()) {
+                                       bool again = false;
+                                       cb(this, channel_map_[channel_id], user_arg, &again);
+                                       if (again) {
+                                           add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
+                                       }
+                                   }
+                               });
+        }
     }
 
 public:

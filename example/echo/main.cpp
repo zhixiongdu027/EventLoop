@@ -19,7 +19,7 @@ void client_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent eve
     write(1, "\nI will echo to client every 5 seconds\n", sizeof("\nI will echo to client every 5 seconds\n"));
 
     if (channel_ptr->context.u32 == 0) {
-        loop_ptr->add_task_on_channel(channel_ptr->id(), 5, nullptr, channel_task);
+        loop_ptr->add_task_on_channel(true, channel_ptr->id(), 5, nullptr, channel_task);
         channel_ptr->context.u32 = 1;
     }
 }
