@@ -36,7 +36,7 @@ public:
         return null_channel_ptr;
     }
 
-    inline void add_task_on_loop(bool imd_exec, size_t each_seconds, void *user_arg,
+    inline void add_task_on_loop(bool imd_exec, size_t seconds, void *user_arg,
                                  std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
         if (init_status_ == INIT) {
             init();
@@ -46,7 +46,7 @@ public:
             cb(this, user_arg, &again);
         }
         if (again) {
-            add_task_on_loop_recursive(each_seconds, user_arg, std::move(cb));
+            add_task_on_loop_recursive(seconds, user_arg, std::move(cb));
         }
     }
 

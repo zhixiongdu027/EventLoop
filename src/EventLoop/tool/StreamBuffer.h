@@ -272,10 +272,6 @@ public:
         replace(position, replace_len, &val, sizeof(uint64_t));
     }
 
-    int read_n(int fd, size_t len, ssize_t *actual_read);
-
-    int write_n(int fd, size_t len, ssize_t *actual_write);
-
     ssize_t read(int fd, size_t len) noexcept;
 
     ssize_t write(int fd, size_t len) noexcept;
@@ -286,6 +282,14 @@ public:
 
     inline ssize_t write_some(int fd) noexcept {
         return write(fd, peek_able());
+    }
+
+    int read_n(int fd, size_t len, ssize_t *actual_read);
+
+    int write_n(int fd, size_t len, ssize_t *actual_write);
+
+    inline int write_all(int fd, ssize_t *actual_write) {
+        write_n(fd, peek_able(), actual_write);
     }
 
 private:
