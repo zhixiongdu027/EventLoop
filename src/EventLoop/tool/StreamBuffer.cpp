@@ -182,13 +182,18 @@ ssize_t StreamBuffer::write(int fd, size_t len) noexcept {
 
 ssize_t StreamBuffer::write(int fd, const void *data, size_t len) noexcept {
     assert(data != nullptr);
-    iovec vec[2];
-    vec[0].iov_base = peek();
-    vec[0].iov_len = peek_able();
-    vec[1].iov_base = (void *) data;
-    vec[1].iov_len = len;
-
-    ssize_t write_res = ::writev(fd, &vec[0], 2);
+    ssize_t write_res;
+    if (empty()) {
+        write_res = ::write(fd, data, len);
+    }
+    else {
+        iovec vec[2];
+        vec[0].iov_base = peek();
+        vec[0].iov_len = peek_able();
+        vec[1].iov_base = (void *) data;
+        vec[1].iov_len = len;
+        write_res = ::writev(fd, &vec[0], 2);
+    }
     if (write_res < 0) {
         return write_res;
     }
@@ -217,7 +222,7 @@ ssize_t StreamBuffer::read_some(int fd) noexcept {
         return read_res;
     }
     else if (static_cast<size_t >(read_res) > append_able()) {
-        size_t use_extra_len = read_res - append_able();
+        size_t use_extra_len = static_cast<size_t >(read_res) - append_able();
         append_pos_ = capacity_;
         append(extra_buff, use_extra_len);
     }
