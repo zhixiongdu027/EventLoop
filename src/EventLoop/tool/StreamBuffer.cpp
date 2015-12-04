@@ -238,7 +238,7 @@ int StreamBuffer::read_n(int fd, size_t len, ssize_t *actual_read) {
     while (had_read < len) {
         ssize_t read_res = ::read(fd, append_pos(), len - had_read);
         if (read_res < 0 && errno != EINTR && errno != EAGAIN) {
-            if (*actual_read != nullptr) {
+            if (actual_read != nullptr) {
                 *actual_read = had_read;
             }
             return -1;
@@ -255,7 +255,7 @@ int StreamBuffer::write_n(int fd, size_t len, ssize_t *actual_write) {
     while (had_write < len) {
         ssize_t write_res = ::write(fd, peek(), len - had_write);
         if (write_res < 0 && errno != EINTR && errno != EAGAIN) {
-            if (*actual_write != nullptr) {
+            if (actual_write != nullptr) {
                 *actual_write = had_write;
             }
             return -1;
