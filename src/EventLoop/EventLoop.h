@@ -38,6 +38,9 @@ public:
 
     inline void add_task_on_loop(size_t seconds, void *user_arg,
                                  std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
+        if (init_status_ == INIT) {
+            init();
+        }
         task_wheel_.regist(seconds,
                            [this, seconds, cb, user_arg]() {
                                bool again = false;
