@@ -2,8 +2,8 @@
 // Created by adugeek on 11/13/15.
 //
 
-#ifndef EVENTLOOP_TOOL_CONCURRENTQUEUE_H
-#define EVENTLOOP_TOOL_CONCURRENTQUEUE_H
+#ifndef EVENTLOOP_TOOL_BLOCKINGQUEUE_H
+#define EVENTLOOP_TOOL_BLOCKINGQUEUE_H
 
 #include <queue>
 #include <mutex>
@@ -49,4 +49,4 @@ private:
     std::queue<T> queue_;
 };
 
-#endif  //EVENTLOOP_TOOL_CONCURRENTQUEUE_H
+#endif  //EVENTLOOP_TOOL_BLOCKINGQUEUE_H
