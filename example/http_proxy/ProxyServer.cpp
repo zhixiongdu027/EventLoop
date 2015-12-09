@@ -50,11 +50,10 @@ void ProxyServer::proxy_client_connect_cb(EventLoopPtr &loop_ptr, ChannelPtr &ch
             auto &head_info = channel_context->http_parser.head_info;
             if (head_info.find("HOST") == head_info.end()) { break; }
             std::string remote_host = std::string(buffer->peek(head_info["HOST"].first), head_info["HOST"].second);
-            uint16_t remote_port = define::http_port;
 
             if (remote_host == "") { break; }
             int remote_sock;
-            if (tcp_nonblock_connect(remote_host.c_str(), remote_port, &remote_sock) ==
+            if (tcp_nonblock_connect(remote_host.c_str(), 80, &remote_sock) ==
                 NONBLOCK_CONNECT_ERROR) { break; };
 
             ChannelPtr &remote_ptr = loop_ptr->add_connecting_channel(remote_sock, 5, 60, proxy_server_forward_cb);

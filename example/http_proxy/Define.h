@@ -9,8 +9,6 @@
 #include <string>
 
 namespace define {
-    extern const uint16_t http_port;
-
     extern const unsigned int proxy_process_size;
 };
 
