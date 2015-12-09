@@ -289,7 +289,7 @@ public:
     int write_n(int fd, size_t len, ssize_t *actual_write);
 
     inline int write_all(int fd, ssize_t *actual_write) {
-        write_n(fd, peek_able(), actual_write);
+        return write_n(fd, peek_able(), actual_write);
     }
 
 private:
