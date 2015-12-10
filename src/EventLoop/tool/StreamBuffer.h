@@ -29,11 +29,11 @@ public:
 
     StreamBuffer(const StreamBuffer &rhs);
 
-    StreamBuffer &operator=(const StreamBuffer &rhs);;
+    StreamBuffer &operator=(const StreamBuffer &rhs);
 
-    StreamBuffer(StreamBuffer &&rhs);
+    StreamBuffer(StreamBuffer &&rhs) noexcept;
 
-    StreamBuffer &operator=(StreamBuffer &&rhs);;
+    StreamBuffer &operator=(StreamBuffer &&rhs) noexcept;
 
     ~StreamBuffer();
 

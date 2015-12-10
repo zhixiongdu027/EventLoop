@@ -42,7 +42,7 @@ StreamBuffer &StreamBuffer::operator=(const StreamBuffer &rhs) {
     return *this;
 }
 
-StreamBuffer::StreamBuffer(StreamBuffer &&rhs)
+StreamBuffer::StreamBuffer(StreamBuffer &&rhs) noexcept
         : memory_(rhs.memory_), capacity_(rhs.capacity_), peek_pos_(rhs.peek_pos_), append_pos_(rhs.append_pos_) {
     rhs.memory_ = nullptr;
     rhs.capacity_ = 0;
@@ -50,7 +50,7 @@ StreamBuffer::StreamBuffer(StreamBuffer &&rhs)
     rhs.append_pos_ = 0;
 }
 
-StreamBuffer &StreamBuffer::operator=(StreamBuffer &&rhs) {
+StreamBuffer &StreamBuffer::operator=(StreamBuffer &&rhs) noexcept {
     if (this != &rhs) {
         delete[]memory_;
         memory_ = rhs.memory_;
