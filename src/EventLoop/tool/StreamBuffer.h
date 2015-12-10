@@ -284,9 +284,9 @@ public:
         return write(fd, peek_able());
     }
 
-    int read_n(int fd, size_t len, ssize_t *actual_read);
+    int read_n(int fd, size_t len, size_t *actual_read);
 
-    int write_n(int fd, size_t len, ssize_t *actual_write);
+    int write_n(int fd, size_t len, size_t *actual_write);
 
     inline int write_all(int fd, ssize_t *actual_write) {
         return write_n(fd, peek_able(), actual_write);

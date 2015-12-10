@@ -232,7 +232,7 @@ ssize_t StreamBuffer::read_some(int fd) noexcept {
     return read_res;
 }
 
-int StreamBuffer::read_n(int fd, size_t len, ssize_t *actual_read) {
+int StreamBuffer::read_n(int fd, size_t len, size_t *actual_read) {
     ensure_append_size(len);
     size_t had_read = 0;
     while (had_read < len) {
@@ -254,7 +254,7 @@ int StreamBuffer::read_n(int fd, size_t len, ssize_t *actual_read) {
     return 0;
 }
 
-int StreamBuffer::write_n(int fd, size_t len, ssize_t *actual_write) {
+int StreamBuffer::write_n(int fd, size_t len, size_t *actual_write) {
     assert(peek_able() >= len);
     size_t had_write = 0;
     while (had_write < len) {
