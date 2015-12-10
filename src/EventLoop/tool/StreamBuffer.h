@@ -70,12 +70,7 @@ public:
     }
 
     inline void discard(size_t len) noexcept {
-        if (len >= peek_able()) {
-            discard_all();
-        }
-        else {
-            peek_pos_ += len;
-        }
+        len < peek_able() ? peek_pos_ += len : discard_all();
     }
 
     inline void discard(size_t position, size_t len) noexcept {
@@ -86,12 +81,12 @@ public:
             memmove(peek(position), peek(position + len), peek_able() - position - len);
             append_pos_ -= len;
         }
-        else if (position <= peek_able()) {
+        else if (position < peek_able()) {
             append_pos_ = peek_pos_ + position;
             return;
         }
         else {
-            assert(true); //if come here ,means  position > peek_able() ;
+            assert(true); //if come here ,means  position >= peek_able() ;
             return;
         }
     }
@@ -103,24 +98,20 @@ public:
     }
 
     inline void prepend_uint8(uint8_t rhs) noexcept {
-        assert(sizeof(uint8_t) < prepend_able());
         prepend(&rhs, sizeof(uint8_t));
     }
 
     inline void prepend_uint16(uint16_t rhs) noexcept {
-        assert(sizeof(uint16_t) < prepend_able());
         uint16_t val = htobe16(rhs);
         prepend(&val, sizeof(uint16_t));
     }
 
     inline void prepend_uint32(uint32_t rhs) noexcept {
-        assert(sizeof(uint32_t) < prepend_able());
         uint32_t val = htobe32(rhs);
         prepend(&val, sizeof(uint32_t));
     }
 
     inline void prepend_uint64(uint64_t rhs) noexcept {
-        assert(sizeof(uint64_t) < prepend_able());
         uint64_t val = htobe64(rhs);
         prepend(&val, sizeof(uint64_t));
     }
