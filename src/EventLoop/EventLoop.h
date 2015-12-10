@@ -41,7 +41,7 @@ public:
         if (init_status_ == INIT) {
             init();
         }
-        bool again = false;
+        bool again = true;
         if (imd_exec) {
             cb(this, user_arg, &again);
         }
@@ -54,7 +54,7 @@ public:
     inline void add_task_on_channel(bool imd_exec, ChannelId channel_id, size_t seconds, void *user_arg,
                                     std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg, bool *again)> cb) {
         if (channel_map_.find(channel_id) != channel_map_.end()) {
-            bool again = false;
+            bool again = true;
             if (imd_exec) {
                 cb(this, channel_map_[channel_id], user_arg, &again);
             }
