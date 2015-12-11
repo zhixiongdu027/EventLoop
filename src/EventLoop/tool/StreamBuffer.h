@@ -70,7 +70,12 @@ public:
     }
 
     inline void discard(size_t len) noexcept {
-        len < peek_able() ? peek_pos_ += len : discard_all();
+        if (len < peek_able()) {
+            peek_pos_ += len;
+        }
+        else {
+            discard_all();
+        }
     }
 
     inline void discard(size_t position, size_t len) noexcept {
