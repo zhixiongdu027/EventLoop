@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <sys/signalfd.h>
 #include <sys/wait.h>
+#include <iostream>
 #include "ProxyServer.h"
 #include "EventLoop/tool/SocketHelp.h"
 
@@ -102,6 +103,7 @@ int main() {
         do {
             proxy_listen_socket = create_tcp_listen(80, 1);
             if (proxy_listen_socket < 0) {
+                std::cout << "create tcp listen on 80 port error " << std::endl;
                 break;
             }
 

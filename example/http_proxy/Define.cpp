@@ -5,5 +5,5 @@
 #include "Define.h"
 
 namespace define {
-    const unsigned int proxy_process_size = 3;
+    const unsigned int proxy_process_size = 10;
 };
