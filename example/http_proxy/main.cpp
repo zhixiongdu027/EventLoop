@@ -101,7 +101,7 @@ static void timed_task(EventLoopPtr &loop_ptr, void *, bool *again) {
 int main() {
     while (true) {
         do {
-            proxy_listen_socket = create_tcp_listen(80, 1);
+            proxy_listen_socket = create_tcp_listen(3128, 1);
             if (proxy_listen_socket < 0) {
                 std::cout << "create tcp listen on 80 port error " << std::endl;
                 break;
