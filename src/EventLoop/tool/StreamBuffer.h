@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <endian.h>
 #include <algorithm>
-
+#include "Ptimize.h"
 /// +-------------------+------------------+------------------+
 /// |    prepend_able   |     peek_able    |    append_able   |
 /// |                   |                  |                  |
@@ -70,7 +70,7 @@ public:
     }
 
     inline void discard(size_t len) noexcept {
-        if (len < peek_able()) {
+        if (LIKELY(len < peek_able())) {
             peek_pos_ += len;
         }
         else {
@@ -82,11 +82,11 @@ public:
         if (position == 0) {
             discard(len);
         }
-        else if (position + len < peek_able()) {
+        else if (LIKELY(position + len < peek_able())) {
             memmove(peek(position), peek(position + len), peek_able() - position - len);
             append_pos_ -= len;
         }
-        else if (position < peek_able()) {
+        else if (LIKELY(position < peek_able())) {
             append_pos_ = peek_pos_ + position;
             return;
         }

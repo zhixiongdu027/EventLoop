@@ -183,7 +183,7 @@ ssize_t StreamBuffer::write(int fd, size_t len) noexcept {
 ssize_t StreamBuffer::write(int fd, const void *data, size_t len) noexcept {
     assert(data != nullptr);
     ssize_t write_res;
-    if (empty()) {
+    if (UNLIKELY(empty())) {
         write_res = ::write(fd, data, len);
     }
     else {
@@ -194,7 +194,7 @@ ssize_t StreamBuffer::write(int fd, const void *data, size_t len) noexcept {
         vec[1].iov_len = len;
         write_res = ::writev(fd, &vec[0], 2);
     }
-    if (write_res < 0) {
+    if (UNLIKELY(write_res < 0)) {
         return write_res;
     }
     else if (static_cast<size_t>(write_res) >= peek_able()) {
@@ -218,7 +218,7 @@ ssize_t StreamBuffer::read_some(int fd) noexcept {
     vec[1].iov_len = EXTRA_BUFF_SIZE;
 
     ssize_t read_res = ::readv(fd, vec, 2);
-    if (read_res < 0) {
+    if (UNLIKELY(read_res < 0)) {
         return read_res;
     }
     else if (static_cast<size_t >(read_res) > append_able()) {
@@ -237,7 +237,7 @@ int StreamBuffer::read_n(int fd, size_t len, size_t *actual_read) {
     size_t had_read = 0;
     while (had_read < len) {
         ssize_t read_res = ::read(fd, append_pos(), len - had_read);
-        if (read_res < 0) {
+        if (UNLIKELY(read_res < 0)) {
             if (errno != EINTR && errno != EAGAIN) {
                 if (actual_read != nullptr) {
                     *actual_read = had_read;
@@ -259,7 +259,7 @@ int StreamBuffer::write_n(int fd, size_t len, size_t *actual_write) {
     size_t had_write = 0;
     while (had_write < len) {
         ssize_t write_res = ::write(fd, peek(), len - had_write);
-        if (write_res < 0) {
+        if (UNLIKELY(write_res < 0)) {
             if (errno != EINTR && errno != EAGAIN) {
                 if (actual_write != nullptr) {
                     *actual_write = had_write;
