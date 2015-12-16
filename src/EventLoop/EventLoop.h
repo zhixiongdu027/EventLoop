@@ -34,7 +34,9 @@ public:
         if (LIKELY(channel_map_.find(id) != channel_map_.end())) {
             return channel_map_[id];
         }
-        return null_channel_ptr;
+        else {
+            return null_channel_ptr;
+        }
     }
 
     inline void add_task_on_loop(bool imd_exec, size_t seconds, void *user_arg,
