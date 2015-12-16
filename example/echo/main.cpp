@@ -1,5 +1,6 @@
 #include "EventLoop/EventLoop.h"
 #include "EventLoop/tool/SocketHelp.h"
+#include <stdio.h>
 
 void channel_task(EventLoopPtr &, ChannelPtr &channel_ptr, void *, bool *again) {
     StreamBuffer *buffer = channel_ptr->get_read_buffer();
@@ -14,9 +15,8 @@ void client_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent eve
     }
 
     StreamBuffer *buffer = channel_ptr->get_read_buffer();
-    write(1, "I read : \n", sizeof("I read : \n") - 1);
-    write(1, buffer->peek(), buffer->peek_able());
-    write(1, "\nI will echo to client every 5 seconds\n", sizeof("\nI will echo to client every 5 seconds\n"));
+    printf("I read :\n%.*s\n", buffer->peek_able(), buffer->peek());
+    printf("I will echo to client every 5 seconds\n");
 
     if (channel_ptr->context.u32 == 0) {
         loop_ptr->add_task_on_channel(true, channel_ptr->id(), 5, nullptr, channel_task);
