@@ -31,7 +31,7 @@ public:
     }
 
     inline ChannelPtr &get_channel(const ChannelId id) noexcept {
-        if (channel_map_.find(id) != channel_map_.end()) {
+        if (LIKELY(channel_map_.find(id) != channel_map_.end())) {
             return channel_map_[id];
         }
         return null_channel_ptr;
