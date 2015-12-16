@@ -12,6 +12,7 @@
 #include "Forward.h"
 #include "Channel.h"
 #include "tool/TaskWheel.h"
+#include "tool/Ptimize.h"
 
 class EventLoop {
 public:
@@ -45,7 +46,7 @@ public:
         if (imd_exec) {
             cb(this, user_arg, &again);
         }
-        if (again) {
+        if (LIKELY(again)) {
             add_task_on_loop_recursive(seconds, user_arg, std::move(cb));
         }
     }
@@ -58,7 +59,7 @@ public:
             if (imd_exec) {
                 cb(this, channel_map_[channel_id], user_arg, &again);
             }
-            if (again) {
+            if (LIKELY(again)) {
                 add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
             }
         }
@@ -71,7 +72,7 @@ public:
             task_wheel_.regist(seconds,
                                [this, channel_id]() {
                                    size_t channel_lives = channel_lives_map_[channel_id];
-                                   if (channel_lives == 0) {
+                                   if (UNLIKELY(channel_lives == 0)) {
                                        channel_lives_map_.erase(channel_id);
                                    }
                                    else if (channel_lives_map_[channel_id] == 1) {
