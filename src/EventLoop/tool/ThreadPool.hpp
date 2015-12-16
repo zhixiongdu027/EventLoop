@@ -11,7 +11,7 @@ template<class T>
 class ThreadPool {
 public:
     template<typename... Args>
-    void add_worker(Args &... args) {
+    void add_worker(const Args &... args) {
         thread_vec_.push_back(T(args...));
     }
 
