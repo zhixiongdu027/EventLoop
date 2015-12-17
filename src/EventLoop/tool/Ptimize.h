@@ -2,8 +2,8 @@
 // Created by adugeek on 12/16/15.
 //
 
-#ifndef EVENTLOOP_PTIMIZE_H
-#define EVENTLOOP_PTIMIZE_H
+#ifndef EVENTLOOP_TOOL_PTIMIZE_H
+#define EVENTLOOP_TOOL_PTIMIZE_H
 
 #ifdef __GNUC__
 # define LIKELY(X) __builtin_expect(!!(X), 1)
@@ -14,4 +14,4 @@
 #endif
 
 
-#endif //EVENTLOOP_PTIMIZE_H
+#endif //EVENTLOOP_TOOL_PTIMIZE_H
