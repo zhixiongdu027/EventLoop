@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 
-#define KEY "\a\b\r\v\1\2\3\4\5\6\7qwertyuiop[]asdfghjkl;zxcvbnm,./QWERTYUIOP[]ASDFGHJKL;'ZXCVBNM,./1234567890~!@#$%^&*()_+`-=:"
+#define KEY "90~!@#12345ZXCVBNMLKJHGFD678$%^&*()_+`-=:zxcvbnm<>?qwertyuiop[]asdfghjkl;'SAPOIUYTREWQ"
 #define KEY_LEN sizeof(KEY)-1
 
 class SimpleEncode {
