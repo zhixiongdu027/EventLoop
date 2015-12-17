@@ -17,7 +17,7 @@ set(EVENTLOOP_SOURCE_FILES
         src/EventLoop/tool/BlockingQueue.hpp
         src/EventLoop/tool/ThreadPool.hpp
         src/EventLoop/tool/Ptimize.h
-        src/EventLoop/too/SimpleEncode.h
+        src/EventLoop/tool/SimpleEncode.h
         )
 
 add_library(eventloop ${EVENTLOOP_SOURCE_FILES})
