@@ -8,7 +8,7 @@
 #include <stddef.h>
 
 #define KEY "90~!@#12345ZXCVBNMLKJHGFD678$%^&*()_+`-=:zxcvbnm<>?qwertyuiop[]asdfghjkl;'SAPOIUYTREWQ"
-#define KEY_LEN sizeof(KEY)-1
+constexpr size_t KEY_LEN = sizeof(KEY) - 1;
 
 class SimpleEncode {
 public:
