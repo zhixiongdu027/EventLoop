@@ -10,7 +10,7 @@
 int Channel::read() noexcept {
     read_begin_label:
     ssize_t read_res = read_buffer_.read_some(fd());
-    if (read_res < 0) {
+    if (UNLIKELY(read_res < 0)) {
         if (errno == EINTR) {
             goto read_begin_label;
         }
@@ -33,7 +33,7 @@ void Channel::send_to_normal() {
             }
             channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SEND_ERR);
         }
-        else if (!write_buffer_.empty()) {
+        else if (UNLIKELY(!write_buffer_.empty())) {
             channel_event_map_[id()] |= TODO_REGO;
         }
     }
