@@ -5,12 +5,15 @@
 #ifndef EVENTLOOP_TOOL_PTIMIZE_H
 #define EVENTLOOP_TOOL_PTIMIZE_H
 
-#ifdef __GNUC__
-# define LIKELY(X) __builtin_expect(!!(X), 1)
-# define UNLIKELY(X) __builtin_expect(!!(X), 0)
+#undef LIKELY
+#undef UNLIKELY
+
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define LIKELY(x)   (__builtin_expect((x), 1))
+#define UNLIKELY(x) (__builtin_expect((x), 0))
 #else
-# define LIKELY(X) (X)
-# define UNLIKELY(X) (X)
+#define LIKELY(x)   (x)
+#define UNLIKELY(x) (x)
 #endif
 
 
