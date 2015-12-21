@@ -7,7 +7,7 @@
 #include "EventLoop/tool/SimpleEncode.h"
 
 int main() {
-    int read_fd = open("proxy.db", O_RDONLY);
+    int read_fd = open("test.txt", O_RDONLY);
 
     StreamBuffer buffer;
     while (buffer.read_some(read_fd) > 0) { };
