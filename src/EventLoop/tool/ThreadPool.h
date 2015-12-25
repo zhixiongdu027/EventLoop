@@ -20,7 +20,7 @@ public:
 
     template<typename... Args>
     void push_back(const Args &... args) noexcept {
-        thread_vec_.push_back(std::thread(args...));
+        thread_vec_.push_back(std::move(std::thread(args...)));
     }
 
     template<typename... Args>
