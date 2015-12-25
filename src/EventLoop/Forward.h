@@ -6,9 +6,11 @@
 #ifndef EVENTLOOP_FORWARD_H
 #define EVENTLOOP_FORWARD_H
 
+#include <errno.h>
 #include <stdint.h>
 #include <memory>
 #include <functional>
+#include "tool/Likely.h"
 
 class EventLoop;
 typedef EventLoop* const EventLoopPtr;

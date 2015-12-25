@@ -3,9 +3,8 @@
 
 // Author: adugeek
 
-#include <errno.h>
-#include "Channel.h"
 
+#include "Channel.h"
 
 int Channel::read() noexcept {
     read_begin_label:

@@ -6,13 +6,12 @@
 #ifndef EVENTLOOP_EVENTLOOP_H
 #define EVENTLOOP_EVENTLOOP_H
 
+#include <string.h>
 #include <sys/epoll.h>
 #include <unordered_map>
-#include <string.h>
 #include "Forward.h"
 #include "Channel.h"
 #include "tool/TaskWheel.h"
-#include "tool/Likely.h"
 
 class EventLoop {
 public:
