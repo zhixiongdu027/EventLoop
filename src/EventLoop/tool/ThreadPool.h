@@ -19,6 +19,11 @@ public:
     }
 
     template<typename... Args>
+    void push_back(const Args &... args) noexcept {
+        thread_vec_.emplace_back(std::thread(args...));
+    }
+
+    template<typename... Args>
     void emplace_back(Args &&... args) noexcept {
         thread_vec_.emplace_back(std::move(args...));
     }
