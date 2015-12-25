@@ -2,8 +2,8 @@
 // Created by adugeek on 12/25/15.
 //
 
-#ifndef EVENTLOOP_THREADPOOL_H
-#define EVENTLOOP_THREADPOOL_H
+#ifndef EVENTLOOP_TOOL_THREADPOOL_H
+#define EVENTLOOP_TOOL_THREADPOOL_H
 
 #include <vector>
 #include <thread>
@@ -45,4 +45,4 @@ private:
     std::vector<std::thread> thread_vec_;
 };
 
-#endif //EVENTLOOP_THREADPOOL_H
+#endif //EVENTLOOP_TOOL_THREADPOOL_H

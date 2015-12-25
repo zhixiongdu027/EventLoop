@@ -2,8 +2,8 @@
 // Created by adugeek on 12/16/15.
 //
 
-#ifndef EVENTLOOP_TOOL_PTIMIZE_H
-#define EVENTLOOP_TOOL_PTIMIZE_H
+#ifndef EVENTLOOP_TOOL_LIKELY_H
+#define EVENTLOOP_TOOL_LIKELY_H
 
 #undef LIKELY
 #undef UNLIKELY
@@ -17,4 +17,4 @@
 #endif
 
 
-#endif //EVENTLOOP_TOOL_PTIMIZE_H
+#endif //EVENTLOOP_TOOL_LIKELY_H
