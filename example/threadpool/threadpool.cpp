@@ -11,10 +11,11 @@ BlockingQueue<int> queue;
 static void my_work(int i) {
     while (true) {
         int val;
-        if (queue.pop_for(std::chrono::seconds(3), &val)) {
+        if (queue.pop_until(std::chrono::system_clock::now() + std::chrono::seconds(3), &val)) {
             printf("id :%d ,val : %d\n", i, val);
             continue;
         };
+        printf("%d will exit \n", i);
         break;
     }
 }
@@ -23,7 +24,7 @@ int main() {
 
     ThreadPool pool;
     auto function = my_work;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 10; ++i) {
         pool.push_back(function, i);
     }
 
