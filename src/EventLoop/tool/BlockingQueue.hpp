@@ -12,6 +12,10 @@
 template<typename T>
 class BlockingQueue {
 public:
+    BlockingQueue<T>() = default;
+
+    BlockingQueue<T>(const BlockingQueue<T> &) = delete;
+
     void push(const T &item) {
         {
             std::unique_lock<std::mutex> unique_lock(mutex_);
@@ -44,6 +48,7 @@ public:
     }
 
 private:
+
     mutable std::mutex mutex_;
     std::condition_variable cond_;
     std::queue<T> queue_;
