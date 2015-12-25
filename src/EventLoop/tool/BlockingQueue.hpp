@@ -42,10 +42,10 @@ public:
     }
 
     template<typename _Rep, typename _Period>
-    bool pop_for(const std::chrono::duration<_Rep, _Period> &after_time, T *value) {
+    bool pop_for(const std::chrono::duration<_Rep, _Period> &relative_time, T *value) {
         assert(value != nullptr);
         std::unique_lock<std::mutex> unique_lock(mutex_);
-        if (cond_.wait_for(unique_lock, after_time, [this] { return !queue_.empty(); })) {
+        if (cond_.wait_for(unique_lock, relative_time, [this] { return !queue_.empty(); })) {
             *value = std::move(queue_.front());
             queue_.pop();
             return true;
@@ -56,10 +56,10 @@ public:
     }
 
     template<typename _Clock, typename _Duration>
-    bool pop_until(const std::chrono::time_point<_Clock, _Duration> &at_time, T *value) {
+    bool pop_until(const std::chrono::time_point<_Clock, _Duration> &absolute_time, T *value) {
         assert(value != nullptr);
         std::unique_lock<std::mutex> unique_lock(mutex_);
-        if (cond_.wait_until(unique_lock, at_time, [this] { return !queue_.empty(); })) {
+        if (cond_.wait_until(unique_lock, absolute_time, [this] { return !queue_.empty(); })) {
             *value = std::move(queue_.front());
             queue_.pop();
             return true;
