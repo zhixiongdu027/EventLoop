@@ -8,6 +8,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include <assert.h>
 
 template<typename T>
 class BlockingQueue {
@@ -34,12 +35,38 @@ public:
 
     T pop() {
         std::unique_lock<std::mutex> unique_lock(mutex_);
-        while (queue_.empty()) {
-            cond_.wait(unique_lock);
-        }
+        cond_.wait(unique_lock, [this] { return !queue_.empty(); });
         T item(std::move(queue_.front()));
         queue_.pop();
         return item;
+    }
+
+    template<typename _Rep, typename _Period>
+    bool pop_for(const std::chrono::duration<_Rep, _Period> &time, T *value) {
+        assert(value != nullptr);
+        std::unique_lock<std::mutex> unique_lock(mutex_);
+        if (cond_.wait_for(unique_lock, time, [this] { return !queue_.empty(); })) {
+            *value = std::move(queue_.front());
+            queue_.pop();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    template<typename _Clock, typename _Duration>
+    bool pop_until(const std::chrono::time_point<_Clock, _Duration> &atime, T *value) {
+        assert(value != nullptr);
+        std::unique_lock<std::mutex> unique_lock(mutex_);
+        if (cond_.wait_until(unique_lock, atime, [this] { return !queue_.empty(); })) {
+            *value = std::move(queue_.front());
+            queue_.pop();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     size_t size() const {
