@@ -36,7 +36,9 @@ public:
 
     inline void join_all() {
         for (auto &item :thread_vec_) {
-            item.join();
+            if (item.joinable()) {
+                item.join();
+            }
         }
     }
 
