@@ -15,7 +15,8 @@ set(EVENTLOOP_SOURCE_FILES
         src/EventLoop/tool/SocketHelp.c
         src/EventLoop/tool/SocketHelp.h
         src/EventLoop/tool/BlockingQueue.hpp
-        src/EventLoop/tool/ThreadPool.hpp
+        src/EventLoop/tool/ThreadPool.h
+        src/EventLoop/tool/WorkerPool.hpp
         src/EventLoop/tool/Ptimize.h
         src/EventLoop/tool/SimpleEncode.h
         )

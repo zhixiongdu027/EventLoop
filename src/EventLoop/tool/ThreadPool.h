@@ -1,23 +1,22 @@
 //
-// Created by adugeek on 11/13/15.
+// Created by adugeek on 12/25/15.
 //
-#ifndef EVENTLOOP_TOOL_THREADPOOL_H
-#define EVENTLOOP_TOOL_THREADPOOL_H
+
+#ifndef EVENTLOOP_THREADPOOL_H
+#define EVENTLOOP_THREADPOOL_H
 
 #include <vector>
 #include <thread>
 
-template<class T>
 class ThreadPool {
 public:
-    template<typename... Args>
-    void add_worker(const Args &... args) {
-        thread_vec_.push_back(T(args...));
+    void push_back(std::thread &&thread) noexcept {
+        thread_vec_.push_back(std::move(thread));
     }
 
     template<typename... Args>
-    void add_worker(Args &&... args) noexcept {
-        thread_vec_.emplace_back(std::move(T(args...)));
+    void emplace_back(Args &&... args) noexcept {
+        thread_vec_.emplace_back(std::move(args...));
     }
 
     inline void detach_all() {
@@ -36,9 +35,4 @@ private:
     std::vector<std::thread> thread_vec_;
 };
 
-#endif //EVNETLOOP_TOOL_THREADPOOL_H
-
-
-
-
-
+#endif //EVENTLOOP_THREADPOOL_H
