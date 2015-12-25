@@ -20,7 +20,7 @@ public:
 
     template<typename... Args>
     void push_back(const Args &... args) noexcept {
-        thread_vec_.emplace_back(std::thread(args...));
+        thread_vec_.push_back(std::thread(args...));
     }
 
     template<typename... Args>
@@ -45,4 +45,4 @@ private:
     std::vector<std::thread> thread_vec_;
 };
 
-#endif //EVENTLOOP_TOOL_THREADPOOL_H
+#endif //EVENTLOOP_THREADPOOL_H
