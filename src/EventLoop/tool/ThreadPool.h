@@ -10,6 +10,10 @@
 
 class ThreadPool {
 public:
+    ThreadPool() = default;
+
+    ThreadPool(const ThreadPool &) = delete;
+
     void push_back(std::thread &&thread) noexcept {
         thread_vec_.push_back(std::move(thread));
     }
@@ -32,6 +36,7 @@ public:
     }
 
 private:
+
     std::vector<std::thread> thread_vec_;
 };
 
