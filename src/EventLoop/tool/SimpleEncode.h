@@ -6,6 +6,7 @@
 #define EVENTLOOP_TOOL_SIMPLEENCODE_H
 
 #include <stddef.h>
+#include <string>
 
 #define KEY "90~!@#12345ZXCVBNMLKJHGFD678$%^&*()_+`-=:zxcvbnm<>?qwertyuiop[]asdfghjkl;'SAPOIUYTREWQ"
 constexpr size_t KEY_LEN = sizeof(KEY) - 1;
@@ -16,8 +17,18 @@ public:
         xor_(data, len, len % 7);
     };
 
+    static inline void encode(std::string *str) {
+        assert(str != nullptr);
+        encode(const_cast<char *>(*str->data()), str->size());
+    }
+
     static inline void decode(char *data, size_t len) {
         xor_(data, len, len % 7);
+    }
+
+    static inline void decode(std::string *str) {
+        assert(str != nullptr);
+        decode(const_cast<char *>(*str->data()), str->size());
     }
 
 private:
