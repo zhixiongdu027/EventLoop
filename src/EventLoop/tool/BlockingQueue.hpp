@@ -28,7 +28,7 @@ public:
     void push(T &&item) {
         {
             std::unique_lock<std::mutex> unique_lock(mutex_);
-            queue_.emplace(std::move(item));
+            queue_.emplace(std::forward<T &&>(item));
         }
         cond_.notify_one();
     }
