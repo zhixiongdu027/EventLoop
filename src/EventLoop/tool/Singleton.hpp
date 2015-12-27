@@ -2,8 +2,8 @@
 // Created by adugeek on 12/27/15.
 //
 
-#ifndef EVENTLOOP_SINGLETON_H
-#define EVENTLOOP_SINGLETON_H
+#ifndef EVENTLOOP_TOOL_SINGLETON_H
+#define EVENTLOOP_TOOL_SINGLETON_H
 
 #include <memory>
 
@@ -17,4 +17,4 @@ public:
     }
 };
 
-#endif //EVENTLOOP_SINGLETON_H
+#endif //EVENTLOOP_TOOL_SINGLETON_H
