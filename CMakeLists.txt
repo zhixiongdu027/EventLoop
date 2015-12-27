@@ -18,6 +18,7 @@ set(EVENTLOOP_SOURCE_FILES
         ${PROJECT_SOURCE_DIR}/src/EventLoop/tool/ThreadPool.h
         ${PROJECT_SOURCE_DIR}/src/EventLoop/tool/Likely.h
         ${PROJECT_SOURCE_DIR}/src/EventLoop/tool/SimpleEncode.h
+        ${PROJECT_SOURCE_DIR}/src/EventLoop/tool/Singleton.hpp
         )
 
 add_library(eventloop ${EVENTLOOP_SOURCE_FILES})
