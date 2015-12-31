@@ -10,8 +10,9 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <functional>
+#include "Copyable.h"
 
-class TaskWheel {
+class TaskWheel : public NonCopyable {
 public:
     explicit TaskWheel(size_t bucket_size) : bucket_vec_(bucket_size + 1), current_index_(0) {
     }
@@ -33,10 +34,6 @@ public:
     }
 
 private:
-    TaskWheel(const TaskWheel &) = delete;
-
-    TaskWheel &operator=(const TaskWheel &) = delete;
-
     std::vector<std::vector<std::function<void()> > > bucket_vec_;
     size_t current_index_;
 };

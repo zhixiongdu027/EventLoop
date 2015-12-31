@@ -7,9 +7,11 @@
 #define EVENTLOOP_TOOL_SINGLETON_H
 
 #include <memory>
+#include "Copyable.h"
+
 
 template<typename T>
-class Singleton {
+class Singleton : public NonCopyable {
 public:
     template<typename... Args>
     static std::unique_ptr<T> &get_instance(Args &&... args) {

@@ -6,29 +6,40 @@
 #include <EventLoop/tool/ThreadPool.h>
 #include "EventLoop/tool/BlockingQueue.hpp"
 
-BlockingQueue<int> queue;
-
-static void my_work(int i) {
-    while (true) {
-        int val;
-        if (queue.pop_until(std::chrono::system_clock::now() + std::chrono::seconds(3), &val)) {
-            printf("id :%d ,val : %d\n", i, val);
-            continue;
-        };
-        printf("%d will exit \n", i);
-        break;
-    }
-}
-
 int main() {
 
+    BlockingQueue<int> queue;
+
+    auto fun1 = [&queue](int i) {
+        while (true) {
+            int val;
+            if (queue.pop_for(std::chrono::seconds(3), &val)) {
+                printf("i am :fun1, id :%d ,val : %d\n", i, val);
+                continue;
+            };
+            printf("%d will exit \n", i);
+            break;
+        };
+    };
+
+    auto fun2 = [&queue](int i) {
+        while (true) {
+            int val;
+            if (queue.pop_for(std::chrono::seconds(3), &val)) {
+                printf("i am :fun2, id :%d ,val : %d\n", i, val);
+                continue;
+            };
+            printf("%d will exit \n", i);
+            break;
+        };
+    };
+
     ThreadPool pool;
-    auto function = my_work;
     for (int i = 0; i < 10; ++i) {
-        pool.push_back(function, i);
+        (i % 2 == 0) ? pool.push_back(fun1, i) : pool.push_back(fun2, i);
     }
 
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 1000000; ++i) {
         queue.push(i);
     }
 

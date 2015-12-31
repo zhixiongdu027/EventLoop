@@ -13,13 +13,13 @@
 #include "Channel.h"
 #include "tool/TaskWheel.h"
 
-class EventLoop {
+class EventLoop : public NonCopyable {
 public:
     EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
         memset(&context, 0x00, sizeof(context));
     }
 
-    ~EventLoop() noexcept;
+    ~EventLoop();
 
     ChannelPtr &add_channel(int fd, bool is_socket, bool is_nonblock, ssize_t lifetime, ChannelCallback io_event_cb);
 
@@ -97,12 +97,6 @@ public:
     }
 
 private:
-    EventLoop(const EventLoop &) = delete;
-
-    EventLoop(EventLoop &&rhs) = delete;
-
-    EventLoop &operator=(const EventLoop &) = delete;
-
     enum INIT_STATUS {
         INIT,
         SUCCESS,

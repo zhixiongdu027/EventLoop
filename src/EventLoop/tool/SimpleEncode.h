@@ -39,6 +39,8 @@ private:
             data[i] ^= KEY[key_pos++];
         }
     }
+
+    SimpleEncode() = delete;
 };
 
 #endif //EVENTLOOP_TOOL_SIMPLEENCODE_H

@@ -6,6 +6,7 @@ set(EVENTLOOP_SOURCE_FILES
         Forward.h
         EventLoop.h
         EventLoop.cpp
+        tool/Copyable.h
         tool/StreamBuffer.cpp
         tool/StreamBuffer.h
         tool/TaskWheel.h

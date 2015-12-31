@@ -10,9 +10,10 @@
 #include <mutex>
 #include <condition_variable>
 #include <assert.h>
+#include "Copyable.h"
 
 template<typename T>
-class BlockingQueue {
+class BlockingQueue : public NonCopyable {
 public:
     BlockingQueue<T>() = default;
 

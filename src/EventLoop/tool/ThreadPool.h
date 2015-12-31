@@ -8,13 +8,10 @@
 
 #include <vector>
 #include <thread>
+#include "Copyable.h"
 
-class ThreadPool {
+class ThreadPool : public NonCopyable {
 public:
-    ThreadPool() = default;
-
-    ThreadPool(const ThreadPool &) = delete;
-
     void push_back(std::thread &&thread) noexcept {
         thread_vec_.push_back(std::forward<std::thread &&>(thread));
     }
