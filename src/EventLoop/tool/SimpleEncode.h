@@ -1,6 +1,7 @@
-//
-// Created by adugeek on 12/17/15.
-//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+
+// Author: adugeek
 
 #ifndef EVENTLOOP_TOOL_SIMPLEENCODE_H
 #define EVENTLOOP_TOOL_SIMPLEENCODE_H

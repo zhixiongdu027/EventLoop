@@ -1,6 +1,7 @@
-//
-// Created by adugeek on 12/25/15.
-//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+
+// Author: adugeek
 
 #ifndef EVENTLOOP_TOOL_THREADPOOL_H
 #define EVENTLOOP_TOOL_THREADPOOL_H

@@ -1,9 +1,7 @@
-/*
- * File:   sockethelp.h
- * Author: adugeek
- *
- * Created on November 4, 2014, 2:29 PM
- */
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+
+// Author: adugeek
 
 #ifndef EVENTLOOP_TOOL_SOCKETHELP_H
 #define EVENTLOOP_TOOL_SOCKETHELP_H

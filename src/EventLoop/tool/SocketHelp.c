@@ -1,3 +1,8 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+
+// Author: adugeek
+
 #include "SocketHelp.h"
 #include <arpa/inet.h>
 #include <unistd.h>
