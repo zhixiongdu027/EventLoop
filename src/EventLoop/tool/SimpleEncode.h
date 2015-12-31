@@ -8,11 +8,12 @@
 
 #include <stddef.h>
 #include <string>
+#include "Copyable.h"
 
 #define KEY "90~!@#12345ZXCVBNMLKJHGFD678$%^&*()_+`-=:zxcvbnm<>?qwertyuiop[]asdfghjkl;'SAPOIUYTREWQ"
 constexpr size_t KEY_LEN = sizeof(KEY) - 1;
 
-class SimpleEncode {
+class SimpleEncode : public NonCopyable {
 public:
     static inline void encode(char *data, size_t len) {
         xor_(data, len, len % 7);

@@ -12,6 +12,8 @@
 
 class ThreadPool : public NonCopyable {
 public:
+    ThreadPool() = default;
+
     void push_back(std::thread &&thread) noexcept {
         thread_vec_.push_back(std::forward<std::thread &&>(thread));
     }
@@ -41,7 +43,6 @@ public:
     }
 
 private:
-
     std::vector<std::thread> thread_vec_;
 };
 
