@@ -13,7 +13,7 @@ int main() {
     auto fun1 = [&queue](int i) {
         while (true) {
             int val;
-            if (queue.pop_for(std::chrono::seconds(3), &val)) {
+            if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
                 printf("i am :fun1, id :%d ,val : %d\n", i, val);
                 continue;
             };
@@ -25,7 +25,7 @@ int main() {
     auto fun2 = [&queue](int i) {
         while (true) {
             int val;
-            if (queue.pop_for(std::chrono::seconds(3), &val)) {
+            if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
                 printf("i am :fun2, id :%d ,val : %d\n", i, val);
                 continue;
             };

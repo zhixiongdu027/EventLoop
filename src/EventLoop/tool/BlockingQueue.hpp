@@ -17,8 +17,6 @@ class BlockingQueue : public NonCopyable {
 public:
     BlockingQueue<T>() = default;
 
-    BlockingQueue<T>(const BlockingQueue<T> &) = delete;
-
     void push(const T &item) {
         {
             std::unique_lock<std::mutex> unique_lock(mutex_);
@@ -44,7 +42,7 @@ public:
     }
 
     template<typename _Rep, typename _Period>
-    bool pop_for(const std::chrono::duration<_Rep, _Period> &relative_time, T *value) {
+    bool pop_wait_for(const std::chrono::duration<_Rep, _Period> &relative_time, T *value) {
         assert(value != nullptr);
         std::unique_lock<std::mutex> unique_lock(mutex_);
         if (cond_.wait_for(unique_lock, relative_time, [this] { return !queue_.empty(); })) {
@@ -58,7 +56,7 @@ public:
     }
 
     template<typename _Clock, typename _Duration>
-    bool pop_until(const std::chrono::time_point<_Clock, _Duration> &absolute_time, T *value) {
+    bool pop_wait_until(const std::chrono::time_point<_Clock, _Duration> &absolute_time, T *value) {
         assert(value != nullptr);
         std::unique_lock<std::mutex> unique_lock(mutex_);
         if (cond_.wait_until(unique_lock, absolute_time, [this] { return !queue_.empty(); })) {
