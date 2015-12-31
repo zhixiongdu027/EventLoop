@@ -7,13 +7,10 @@
 #define EVENTLOOP_TOOL_SINGLETON_H
 
 #include <memory>
-#include "Copyable.h"
-
 
 template<typename T>
-class Singleton : public NonCopyable {
+class Singleton {
 public:
-
     Singleton<T>() = delete;
 
     template<typename... Args>

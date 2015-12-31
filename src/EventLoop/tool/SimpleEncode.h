@@ -8,12 +8,11 @@
 
 #include <stddef.h>
 #include <string>
-#include "Copyable.h"
 
 #define KEY "90~!@#12345ZXCVBNMLKJHGFD678$%^&*()_+`-=:zxcvbnm<>?qwertyuiop[]asdfghjkl;'SAPOIUYTREWQ"
 constexpr size_t KEY_LEN = sizeof(KEY) - 1;
 
-class SimpleEncode : public NonCopyable {
+class SimpleEncode {
 public:
     SimpleEncode() = delete;
 
