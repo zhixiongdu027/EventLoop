@@ -15,6 +15,8 @@ constexpr size_t KEY_LEN = sizeof(KEY) - 1;
 
 class SimpleEncode : public NonCopyable {
 public:
+    SimpleEncode() = delete;
+
     static inline void encode(char *data, size_t len) {
         xor_(data, len, len % 7);
     };
@@ -40,8 +42,6 @@ private:
             data[i] ^= KEY[key_pos++];
         }
     }
-
-    SimpleEncode() = delete;
 };
 
 #endif //EVENTLOOP_TOOL_SIMPLEENCODE_H

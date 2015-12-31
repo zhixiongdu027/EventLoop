@@ -13,6 +13,9 @@
 template<typename T>
 class Singleton : public NonCopyable {
 public:
+
+    Singleton<T>() = delete;
+
     template<typename... Args>
     static std::unique_ptr<T> &get_instance(Args &&... args) {
         static std::unique_ptr<T> singleton_ptr(new T(std::forward<Args>(args)...));
