@@ -1,5 +1,5 @@
-#ifndef EVENTLOOP_COPYABLE_H
-#define EVENTLOOP_COPYABLE_H
+#ifndef EVENTLOOP_TOOL_COPYABLE_H
+#define EVENTLOOP_TOOL_COPYABLE_H
 
 class NonCopyable {
 protected:
@@ -18,4 +18,4 @@ protected:
     //  ~Copyable() = default;
 };
 
-#endif //EVENTLOOP_COPYABLE_H
+#endif //EVENTLOOP_TOOL_COPYABLE_H
