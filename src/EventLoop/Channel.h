@@ -55,6 +55,12 @@ public:
         is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
     }
 
+    inline int move_fd() {
+        int temp = -1;
+        std::swap(temp, fd_);
+        return temp;
+    }
+
     ~Channel() noexcept {
         if (context_deleter != nullptr) {
             context_deleter(context.ptr);
@@ -69,8 +75,7 @@ private:
     }
 
     Channel(int fd, bool is_socket, bool is_nonblock, std::unordered_map<ChannelId, ChannelEvent> &event_map)
-            : id_(make_channel_id()), fd_(fd), is_socket_(is_socket),
-              is_connected_(true), is_nonblock_(is_nonblock),
+            : is_connected_(true), is_nonblock_(is_nonblock), is_socket_(is_socket), fd_(fd), id_(make_channel_id()),
               channel_event_map_(event_map) {
         memset(&context, 0x00, sizeof(context));
     }
@@ -90,11 +95,11 @@ private:
     void send_to_socket(const void *data, size_t len) noexcept;
 
 private:
-    const ChannelId id_;
-    const int fd_;
-    const bool is_socket_;
     bool is_connected_;
     bool is_nonblock_;
+    const bool is_socket_;
+    int fd_;
+    const ChannelId id_;
     std::unordered_map<ChannelId, ChannelEvent> &channel_event_map_;
     ChannelCallback event_cb_;
     StreamBuffer read_buffer_;
