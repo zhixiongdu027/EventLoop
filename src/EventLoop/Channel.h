@@ -55,12 +55,6 @@ public:
         is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
     }
 
-    inline int move_fd() {
-        int temp = -1;
-        std::swap(temp, fd_);
-        return temp;
-    }
-
     ~Channel() noexcept {
         if (context_deleter != nullptr) {
             context_deleter(context.ptr);
