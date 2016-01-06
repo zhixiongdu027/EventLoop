@@ -8,16 +8,25 @@
 
 #include <memory>
 
-template<typename T>
+template<typename T> // Singleton policy class
 class Singleton {
-public:
-    Singleton<T>() = delete;
+protected:
+    Singleton() = default;
 
+    virtual ~Singleton() = default;
+
+    Singleton(const Singleton &) = delete;
+
+    Singleton &operator=(const Singleton &) = delete;
+
+public:
     template<typename... Args>
-    static std::unique_ptr<T> &get_instance(Args &&... args) {
+    static std::unique_ptr<T> &get_instance(Args... args) // Singleton
+    {
         static std::unique_ptr<T> singleton_ptr(new T(std::forward<Args>(args)...));
         return singleton_ptr;
     }
 };
+
 
 #endif //EVENTLOOP_TOOL_SINGLETON_H

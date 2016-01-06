@@ -1,7 +1,7 @@
 #include <cstdio>
 #include "EventLoop/tool/Singleton.hpp"
 
-class A {
+class A : public Singleton<A> {
 public:
     A() : a_(0), b_(0) { };
 
@@ -23,21 +23,23 @@ private:
 };
 
 int main() {
-    std::unique_ptr<A> &ptr1 = Singleton<A>::get_instance();
+    A a;
+    a.print();
+    std::unique_ptr<A> &ptr1 = A::get_instance();
     ptr1->print();
 
-    std::unique_ptr<A> &ptr2 = Singleton<A>::get_instance(1);
+    std::unique_ptr<A> &ptr2 = A::get_instance(1);
     ptr2->print();
 
-    std::unique_ptr<A> &ptr3 = Singleton<A>::get_instance(2, 1);
+    std::unique_ptr<A> &ptr3 = A::get_instance(2, 1);
     ptr3->print();
 
-    std::unique_ptr<A> &ptr4 = Singleton<A>::get_instance(2, 2);
+    std::unique_ptr<A> &ptr4 = A::get_instance(2, 2);
     ptr4->print();
 
-    std::unique_ptr<A> &ptr5 = Singleton<A>::get_instance(2, 3);
+    std::unique_ptr<A> &ptr5 = A::get_instance(2, 3);
     ptr5->print();
 
-    std::unique_ptr<A> &ptr6 = Singleton<A>::get_instance(2, 4);
+    std::unique_ptr<A> &ptr6 = A::get_instance(2, 4);
     ptr6->print();
 }
