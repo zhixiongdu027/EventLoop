@@ -1,4 +1,4 @@
 
 
-add_executable(threadpool threadpool.cpp)
-target_link_libraries(threadpool pthread)
+add_executable(example_threadpool main.cpp)
+target_link_libraries(example_threadpool pthread)
