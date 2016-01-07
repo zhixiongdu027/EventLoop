@@ -6,6 +6,7 @@
 #ifndef EVENTLOOP_TOOL_SIMPLEENCODE_H
 #define EVENTLOOP_TOOL_SIMPLEENCODE_H
 
+#include <assert.h>
 #include <stddef.h>
 #include <string>
 
@@ -22,7 +23,7 @@ public:
 
     static inline void encode(std::string *str) {
         assert(str != nullptr);
-        encode(const_cast<char *>(*str->data()), str->size());
+        encode(const_cast<char *>(str->data()), str->size());
     }
 
     static inline void decode(char *data, size_t len) {
@@ -31,7 +32,7 @@ public:
 
     static inline void decode(std::string *str) {
         assert(str != nullptr);
-        decode(const_cast<char *>(*str->data()), str->size());
+        decode(const_cast<char *>(str->data()), str->size());
     }
 
 private:
