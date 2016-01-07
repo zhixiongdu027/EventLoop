@@ -41,12 +41,10 @@ int main() {
 
     for (int i = 0; i < 10; ++i) {
         if (i % 2 == 0) {
-            std::thread temp(fun1, i, "number 1");
-            pool.push_back(std::move(temp));
+            pool.push_back(std::thread(fun1, i, "number 1"));
         }
         else {
-            std::thread temp(fun2, i, "number 2");
-            pool.push_back(std::move(temp));
+            pool.push_back(std::thread(fun2, i, "number 2"));
         };
     }
 

@@ -17,7 +17,13 @@ public:
     explicit TaskWheel(size_t bucket_size) : bucket_vec_(bucket_size + 1), current_index_(0) {
     }
 
-    inline void regist(size_t ticks, std::function<void()> cb) {
+    inline void regist(size_t ticks, std::function<void()> &&cb) {
+        size_t ticks_ = ticks > bucket_vec_.size() - 1 ? bucket_vec_.size() - 1 : ticks;
+        auto &bucket = bucket_vec_[(current_index_ + ticks_) % bucket_vec_.size()];
+        bucket.emplace_back(std::move(cb));
+    }
+
+    inline void regist(size_t ticks, const std::function<void()> &cb) {
         size_t ticks_ = ticks > bucket_vec_.size() - 1 ? bucket_vec_.size() - 1 : ticks;
         auto &bucket = bucket_vec_[(current_index_ + ticks_) % bucket_vec_.size()];
         bucket.push_back(cb);
