@@ -33,11 +33,11 @@ public:
         cond_.notify_one();
     }
 
-    template<typename... _Args>
-    void emplace(_Args &&... __args) {
+    template<typename... Args>
+    void emplace(Args &&... args) {
         {
             std::unique_lock<std::mutex> unique_lock(mutex_);
-            queue_.emplace(std::forward<_Args>(__args)...);
+            queue_.emplace(std::forward<Args>(args)...);
         }
         cond_.notify_one();
     }
