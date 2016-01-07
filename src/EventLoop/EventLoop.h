@@ -131,7 +131,7 @@ private:
 
 
     void add_task_on_loop_recursive(size_t seconds, void *user_arg,
-                                    std::function<void(EventLoopPtr &, void *user_arg, bool *again)> cb) {
+                                    const std::function<void(EventLoopPtr &, void *user_arg, bool *again)> &cb) {
         task_wheel_.regist(seconds,
                            [this, seconds, cb, user_arg]() {
                                bool again = false;
@@ -143,8 +143,8 @@ private:
     }
 
     void add_task_on_channel_recursive(ChannelId channel_id, size_t seconds, void *user_arg,
-                                       std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg,
-                                                          bool *again)> cb) {
+                                       const std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg,
+                                                                bool *again)> &cb) {
         if (channel_map_.find(channel_id) != channel_map_.end()) {
             task_wheel_.regist(seconds,
                                [this, channel_id, seconds, cb, user_arg]() {
@@ -154,6 +154,8 @@ private:
                                        if (again) {
                                            add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
                                        }
+
+
                                    }
                                });
         }
