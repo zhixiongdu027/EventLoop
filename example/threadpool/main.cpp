@@ -37,16 +37,15 @@ int main() {
 
     ThreadPool pool;
 
-
     std::function<void(int)> fun1 = c_fun1;
     std::function<void(int)> fun2 = c_fun2;
 
     for (int i = 0; i < 10; ++i) {
-        (i % 2 == 0) ? pool.emplace_back(fun1, i) : pool.emplace_back(fun2, i);
+        (i % 2 == 0) ? pool.emplace_back(c_fun1, i) : pool.emplace_back(c_fun2, i);
     }
 
     for (int i = 0; i < 1000000; ++i) {
-        queue.emplace(i);
+        queue.push(i);
     }
 
     pool.join_all();

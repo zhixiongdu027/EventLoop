@@ -18,14 +18,9 @@ public:
         thread_vec_.push_back(std::forward<std::thread>(thread));
     }
 
-    template<typename... Args>
-    void emplace_back(const Args &... args) noexcept {
-        thread_vec_.emplace_back(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    void emplace_back(Args &&... args) noexcept {
-        thread_vec_.emplace_back(std::forward<Args>(args)...);
+    template<typename CallAble, typename... Args>
+    void emplace_back(CallAble &&f, Args &&... args) noexcept {
+        thread_vec_.emplace_back(std::forward<CallAble>(f), std::forward<Args>(args)...);
     }
 
     inline void detach_all() {
