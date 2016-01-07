@@ -15,12 +15,12 @@ public:
     ThreadPool() = default;
 
     void push_back(std::thread &&thread) noexcept {
-        thread_vec_.push_back(std::forward<std::thread>(thread));
+        thread_vec_.emplace_back(std::forward<std::thread>(thread));
     }
 
     template<typename CallAble, typename... Args>
     void emplace_back(CallAble &&f, Args &&... args) noexcept {
-        thread_vec_.emplace_back(std::forward<CallAble>(f), std::forward<Args>(args)...);
+        thread_vec_.emplace_back(std::thread(std::forward<CallAble>(f), std::forward<Args>(args)...));
     }
 
     inline void detach_all() {
