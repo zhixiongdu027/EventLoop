@@ -40,7 +40,7 @@ int main() {
     }
 
     for (int i = 0; i < 1000000; ++i) {
-        queue.push(i);
+        queue.emplace(i);
     }
 
     pool.join_all();

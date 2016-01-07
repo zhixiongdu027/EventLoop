@@ -33,6 +33,15 @@ public:
         cond_.notify_one();
     }
 
+    template<typename... _Args>
+    void emplace(_Args &&... __args) {
+        {
+            std::unique_lock<std::mutex> unique_lock(mutex_);
+            queue_.emplace(std::forward<_Args>(__args)...);
+        }
+        cond_.notify_one();
+    }
+
     T pop() {
         std::unique_lock<std::mutex> unique_lock(mutex_);
         cond_.wait(unique_lock, [this] { return !queue_.empty(); });
