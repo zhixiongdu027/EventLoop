@@ -154,8 +154,6 @@ private:
                                        if (again) {
                                            add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
                                        }
-
-
                                    }
                                });
         }
