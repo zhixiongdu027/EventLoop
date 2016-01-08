@@ -22,6 +22,8 @@ void c_fun1(int i, const char *label) {
 
 class A {
 public:
+    constexpr A() = default;
+
     void operator()(int i, const char *label) {
         while (true) {
             int val;

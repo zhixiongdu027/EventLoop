@@ -48,6 +48,7 @@ static int create_child() {
 static int create_signalfd() {
     sigset_t mask;
     sigemptyset(&mask);
+    sigaddset(&mask, SIGINT);
     sigaddset(&mask, SIGQUIT);
     sigaddset(&mask, SIGCHLD);
     return sigprocmask(SIG_BLOCK, &mask, NULL) < 0 ? -1 : signalfd(-1, &mask, SFD_CLOEXEC);
@@ -103,7 +104,7 @@ int main() {
         do {
             proxy_listen_socket = create_tcp_listen(3128, 1);
             if (proxy_listen_socket < 0) {
-                std::cout << "create tcp listen on 80 port error " << std::endl;
+                std::cout << "create tcp listen on 3128 port error " << std::endl;
                 break;
             }
 
