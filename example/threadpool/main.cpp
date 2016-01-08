@@ -12,7 +12,7 @@ void c_fun1(int i, const char *label) {
     while (true) {
         int val;
         if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
-            printf("i am :fun1, id :%d ,val : %d ,label : %s\n", i, val, label);
+            printf("id :%d ,val : %d ,label : %s\n", i, val, label);
             continue;
         };
         printf("%d will exit \n", i);
@@ -20,32 +20,65 @@ void c_fun1(int i, const char *label) {
     };
 }
 
-void c_fun2(int i, const char *label) {
-    while (true) {
-        int val;
-        if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
-            printf("i am :fun2, id :%d ,val : %d ,label : %s\n", i, val, label);
-            continue;
+class A {
+public:
+    void operator()(int i, const char *label) {
+        while (true) {
+            int val;
+            if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
+                printf("id :%d ,val : %d ,label : %s\n", i, val, label);
+                continue;
+            };
+            printf("%d will exit \n", i);
+            break;
         };
-        printf("%d will exit \n", i);
-        break;
-    };
-}
+    }
+
+    void member(int i, const char *label) {
+        while (true) {
+            int val;
+            if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
+                printf("id :%d ,val : %d ,label : %s\n", i, val, label);
+                continue;
+            };
+            printf("%d will exit \n", i);
+            break;
+        };
+    }
+};
 
 int main() {
 
     ThreadPool pool;
 
-    std::function<void(int, const char *)> fun1 = c_fun1;
-    std::function<void(int, const char *)> fun2 = c_fun2;
-
-    for (int i = 0; i < 10; ++i) {
-        if (i % 2 == 0) {
-            pool.push_back(std::thread(fun1, i, "number 1"));
+    A a;
+    for (int i = 0; i < 4; ++i) {
+        switch (i) {
+            case 0:
+                pool.emplace_back(c_fun1, i, "number 0");
+                break;
+            case 1:
+                pool.push_back(std::thread(A(), i, "number 1"));
+                break;
+            case 2:
+                pool.emplace_back(std::bind(&A::member, &a, i, "number 2"));
+                break;
+            case 3:
+                pool.emplace_back([](int i, const char *label) {
+                    while (true) {
+                        int val;
+                        if (queue.pop_wait_for(std::chrono::seconds(3), &val)) {
+                            printf("id :%d ,val : %d ,label : %s\n", i, val, label);
+                            continue;
+                        };
+                        printf("%d will exit \n", i);
+                        break;
+                    };
+                }, i, "number 3");
+                break;
+            default:
+                break;
         }
-        else {
-            pool.push_back(std::thread(fun2, i, "number 2"));
-        };
     }
 
     for (int i = 0; i < 1000000; ++i) {
