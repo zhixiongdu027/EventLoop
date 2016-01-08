@@ -55,13 +55,13 @@ int main() {
     for (int i = 0; i < 4; ++i) {
         switch (i) {
             case 0:
-                pool.emplace_back(c_fun1, i, "number 0");
+                pool.emplace_back(c_fun1, i, "c_fun");
                 break;
             case 1:
-                pool.push_back(std::thread(A(), i, "number 1"));
+                pool.emplace_back(A(), i, "operator");
                 break;
             case 2:
-                pool.emplace_back(std::bind(&A::member, &a, i, "number 2"));
+                pool.emplace_back(std::bind(&A::member, &a, i, "member"));
                 break;
             case 3:
                 pool.emplace_back([](int i, const char *label) {
@@ -74,7 +74,7 @@ int main() {
                         printf("%d will exit \n", i);
                         break;
                     };
-                }, i, "number 3");
+                }, i, "lama");
                 break;
             default:
                 break;
