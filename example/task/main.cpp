@@ -2,7 +2,7 @@
 // Created by adugeek on 12/4/15.
 //
 
-#include <iostream>
+#include <cstdio>
 #include "EventLoop/EventLoop.h"
 
 void c_fun(EventLoopPtr &, void *, bool *again) {
