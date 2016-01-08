@@ -23,8 +23,6 @@ private:
 };
 
 int main() {
-    A a;
-    a.print();
     std::unique_ptr<A> &ptr1 = A::get_instance();
     ptr1->print();
 

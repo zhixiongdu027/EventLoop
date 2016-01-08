@@ -21,7 +21,7 @@ protected:
 
 public:
     template<typename... Args>
-    static std::unique_ptr<T> &get_instance(Args... args) // Singleton
+    static std::unique_ptr<T> &get_instance(Args &&... args) // Singleton
     {
         static std::unique_ptr<T> singleton_ptr(new T(std::forward<Args>(args)...));
         return singleton_ptr;
