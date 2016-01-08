@@ -8,12 +8,12 @@
 
 #include <memory>
 
-template<typename T> // Singleton policy class
+template<typename T>
 class Singleton {
 protected:
-    Singleton() = default;
+    constexpr Singleton() = default;
 
-    virtual ~Singleton() = default;
+    ~Singleton() = default;
 
     Singleton(const Singleton &) = delete;
 
@@ -21,12 +21,11 @@ protected:
 
 public:
     template<typename... Args>
-    static std::unique_ptr<T> &get_instance(Args &&... args) // Singleton
+    static T &get_instance(Args ... args) // Singleton
     {
-        static std::unique_ptr<T> singleton_ptr(new T(std::forward<Args>(args)...));
-        return singleton_ptr;
+        static T singleton(std::forward<Args>(args)...);
+        return singleton;
     }
 };
-
 
 #endif //EVENTLOOP_TOOL_SINGLETON_H
