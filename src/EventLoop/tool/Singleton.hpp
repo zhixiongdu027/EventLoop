@@ -21,7 +21,7 @@ protected:
 
 public:
     template<typename... Args>
-    static T &get_instance(Args ... args) // Singleton
+    static T &get_instance(Args &&... args) // Singleton
     {
         static T singleton(std::forward<Args>(args)...);
         return singleton;
