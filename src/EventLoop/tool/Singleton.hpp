@@ -7,6 +7,8 @@
 #define EVENTLOOP_TOOL_SINGLETON_H
 
 #include <memory>
+#include <mutex>
+#include <assert.h>
 #include "Copyable.h"
 
 template<typename T>
@@ -16,11 +18,26 @@ protected:
 
 public:
     template<typename... Args>
-    static T &get_instance(Args &&... args) // Singleton
-    {
-        static T singleton(std::forward<Args>(args)...);
-        return singleton;
+    static bool init(Args &&... args) {
+        std::call_once(flag_, [](Args &&... args) {
+            {
+                std::unique_ptr<T> temp(new T(std::forward<Args>(args)...));
+                singleton_.swap(temp);
+            }
+        }, std::forward<Args>(args)...);
+        return singleton_ == nullptr;
     }
+
+    static std::unique_ptr<T> &instance() {
+        assert(singleton_ != nullptr);
+        return singleton_;
+    }
+
+    static std::unique_ptr<T> singleton_;
+    static std::once_flag flag_;
 };
+
+template<typename T> std::unique_ptr<T> Singleton<T>::singleton_;
+template<typename T> std::once_flag Singleton<T>::flag_;
 
 #endif //EVENTLOOP_TOOL_SINGLETON_H

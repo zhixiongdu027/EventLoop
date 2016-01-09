@@ -23,21 +23,10 @@ private:
 };
 
 int main() {
-    A &a1 = Singleton<A>::get_instance();
-    a1.print();
+    Singleton<A>::init(2, 4);
+    Singleton<A>::init(3, 8);
+    Singleton<A>::init(1, 2);
+    auto &a1 = Singleton<A>::instance();
+    a1->print();
 
-    A &a2 = Singleton<A>::get_instance(1);
-    a2.print();
-
-    A &a3 = Singleton<A>::get_instance(2, 1);
-    a3.print();
-
-    A &a4 = Singleton<A>::get_instance(2, 2);
-    a4.print();
-
-    A &a5 = Singleton<A>::get_instance(2, 3);
-    a5.print();
-
-    A &a6 = Singleton<A>::get_instance(2, 4);
-    a6.print();
 }
