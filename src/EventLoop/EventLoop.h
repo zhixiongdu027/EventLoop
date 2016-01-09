@@ -30,12 +30,7 @@ public:
     }
 
     inline ChannelPtr &get_channel(const ChannelId id) noexcept {
-        if (LIKELY(channel_map_.find(id) != channel_map_.end())) {
-            return channel_map_[id];
-        }
-        else {
-            return null_channel_ptr;
-        }
+        return (channel_map_.find(id) != channel_map_.end()) ? channel_map_[id] : null_channel_ptr;
     }
 
     inline void add_task_on_loop(bool imd_exec, size_t seconds, void *user_arg,
