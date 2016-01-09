@@ -35,6 +35,7 @@ public:
         return singleton_;
     }
 
+private:
     static std::unique_ptr<T> singleton_;
     static std::once_flag flag_;
 };
