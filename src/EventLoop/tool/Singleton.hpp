@@ -9,12 +9,14 @@
 #include <memory>
 #include <mutex>
 #include <assert.h>
-#include "Copyable.h"
 
 template<typename T>
-class Singleton : public NonCopyable {
-protected:
-    constexpr Singleton() = default;
+class Singleton {
+    Singleton() = delete;
+
+    Singleton(const Singleton &) = delete;
+
+    Singleton &operator=(const Singleton &) = delete;
 
 public:
     template<typename... Args>
