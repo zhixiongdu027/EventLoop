@@ -7,17 +7,12 @@
 #define EVENTLOOP_TOOL_SINGLETON_H
 
 #include <memory>
+#include "Copyable.h"
 
 template<typename T>
-class Singleton {
+class Singleton : public NonCopyable {
 protected:
     constexpr Singleton() = default;
-
-    ~Singleton() = default;
-
-    Singleton(const Singleton &) = delete;
-
-    Singleton &operator=(const Singleton &) = delete;
 
 public:
     template<typename... Args>
