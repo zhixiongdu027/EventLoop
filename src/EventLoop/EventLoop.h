@@ -15,7 +15,7 @@
 
 class EventLoop : public NonCopyable {
 public:
-    EventLoop() : init_status_(INIT_STATUS::INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
+    EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
         memset(&context, 0x00, sizeof(context));
     }
 
@@ -35,7 +35,7 @@ public:
 
     inline void add_task_on_loop(bool imd_exec, size_t seconds, void *user_arg,
                                  const std::function<void(EventLoopPtr &, void *user_arg, bool *again)> &cb) {
-        if (init_status_ == INIT_STATUS::INIT) {
+        if (init_status_ == INIT) {
             init();
         }
         bool again = true;
@@ -93,7 +93,7 @@ public:
     }
 
 private:
-    enum class INIT_STATUS {
+    enum INIT_STATUS {
         INIT,
         SUCCESS,
         ERROR
@@ -101,10 +101,10 @@ private:
 
     inline void init() {
         if (create_epoll_fd() < 0 || create_timer_fd() < 0 || add_timer_channel() < 0) {
-            init_status_ = INIT_STATUS::ERROR;
+            init_status_ = ERROR;
         }
         else {
-            init_status_ = INIT_STATUS::SUCCESS;
+            init_status_ = SUCCESS;
             quit_ = false;
         }
     }
