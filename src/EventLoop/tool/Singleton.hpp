@@ -27,7 +27,6 @@ public:
                 singleton_.swap(temp);
             }
         }, std::forward<Args>(args)...);
-        return;
     }
 
     static std::unique_ptr<T> &instance() {
