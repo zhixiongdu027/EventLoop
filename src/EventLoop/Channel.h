@@ -14,7 +14,7 @@
 #include "tool/TaskWheel.h"
 #include "tool/StreamBuffer.h"
 
-class Channel {
+class Channel : public NonCopyable {
     friend class EventLoop;
 
 public:
@@ -73,12 +73,6 @@ private:
               channel_event_map_(event_map) {
         memset(&context, 0x00, sizeof(context));
     }
-
-    Channel(const Channel &rhs) = delete;
-
-    Channel(Channel &&rhs) = delete;
-
-    Channel &operator=(const Channel &rhs) = delete;
 
     void send_to_normal();
 
