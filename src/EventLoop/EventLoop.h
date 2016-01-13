@@ -17,7 +17,7 @@ class EventLoop : public NonCopyable {
 public:
 
     typedef std::function<void(EventLoopPtr &, void *user_arg, bool *again)> LoopTaskCallback;
-    typedef std::function<void(EventLoopPtr &, ChannelPtr &, void *, bool *)> ChannelTaskCallback;
+    typedef std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg, bool *again)> ChannelTaskCallback;
 
     EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true) {
         memset(&context, 0x00, sizeof(context));
