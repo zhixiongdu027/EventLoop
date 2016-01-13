@@ -15,6 +15,10 @@
 
 class EventLoop : public NonCopyable {
 public:
+
+    typedef std::function<void(EventLoopPtr &, void *user_arg, bool *again)> LoopTaskCallback;
+    typedef std::function<void(EventLoopPtr &, ChannelPtr &, void *, bool *)> ChannelTaskCallback;
+
     EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true) {
         memset(&context, 0x00, sizeof(context));
     }
@@ -25,16 +29,16 @@ public:
 
     ChannelPtr &add_connecting_channel(int fd, ssize_t connect_time, ssize_t lifetime, ChannelCallback io_event_cb);
 
-    inline void erase_channel(ChannelId id) noexcept {
+    inline void erase_channel(const ChannelId &id) noexcept {
         channel_event_map_[id] |= TODO_ERASE;
     }
 
-    inline ChannelPtr &get_channel(const ChannelId id) noexcept {
+    inline ChannelPtr &get_channel(const ChannelId &id) noexcept {
         return (channel_map_.find(id) != channel_map_.end()) ? channel_map_[id] : null_channel_ptr;
     }
 
     inline void add_task_on_loop(bool imd_exec, size_t seconds, void *user_arg,
-                                 const std::function<void(EventLoopPtr &, void *user_arg, bool *again)> &cb) {
+                                 const LoopTaskCallback &cb) {
         if (init_status_ == INIT) {
             init();
         }
@@ -49,8 +53,7 @@ public:
 
 
     inline void add_task_on_channel(bool imd_exec, ChannelId channel_id, size_t seconds, void *user_arg,
-                                    const std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg,
-                                                             bool *again)> &cb) {
+                                    const ChannelTaskCallback &cb) {
         if (channel_map_.find(channel_id) != channel_map_.end()) {
             bool again = true;
             if (imd_exec) {
