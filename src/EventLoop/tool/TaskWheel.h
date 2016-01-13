@@ -14,7 +14,7 @@
 
 class TaskWheel : public NonCopyable {
 public:
-    explicit TaskWheel(size_t bucket_size) : bucket_vec_(bucket_size + 1), current_index_(0) {
+    explicit TaskWheel(size_t bucket_size = 300) : bucket_vec_(bucket_size + 1), current_index_(0) {
     }
 
     inline void regist(size_t ticks, std::function<void()> &&cb) {

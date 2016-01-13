@@ -15,7 +15,7 @@
 
 class EventLoop : public NonCopyable {
 public:
-    EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true), task_wheel_(300) {
+    EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true) {
         memset(&context, 0x00, sizeof(context));
     }
 
