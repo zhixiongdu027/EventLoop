@@ -20,14 +20,13 @@ class Singleton {
 
 public:
     template<typename... Args>
-    static bool init(Args &&... args) {
+    static void init(Args &&... args) {
         std::call_once(flag_, [](Args &&... args) {
             {
                 std::unique_ptr<T> temp(new T(std::forward<Args>(args)...));
                 singleton_.swap(temp);
             }
         }, std::forward<Args>(args)...);
-        return singleton_ == nullptr;
     }
 
     static std::unique_ptr<T> &instance() {
