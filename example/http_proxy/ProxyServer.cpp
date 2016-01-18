@@ -2,7 +2,6 @@
 // Created by adugeek on 15-7-9.
 //
 #include <iostream>
-#include <EventLoop/Forward.h>
 #include "ProxyServer.h"
 #include "EventLoop/tool/SocketHelp.h"
 
