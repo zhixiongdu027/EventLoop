@@ -54,7 +54,7 @@ void ProxyServer::proxy_client_connect_cb(EventLoopPtr &loop_ptr, ChannelPtr &ch
             std::cout << "remote host :" << remote_host << std::endl;
             if (remote_host == "") { break; }
             int remote_sock;
-            if (tcp_nonblock_connect(remote_host.c_str(), 80, &remote_sock) == NONBLOCK_CONNECT_ERROR) { break; };
+            if (tcp_nonblock_connect(remote_host.c_str(), 80, &remote_sock) == ExecuteError) { break; };
 
             ChannelPtr &remote_ptr = loop_ptr->add_connecting_channel(remote_sock, 5, 60, proxy_server_forward_cb);
             if (remote_ptr == nullptr) { break; }

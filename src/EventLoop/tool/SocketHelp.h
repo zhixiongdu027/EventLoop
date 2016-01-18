@@ -12,18 +12,13 @@ extern "C"
 #endif
 
 #include <netdb.h>
+#include "ExecuteState.h"
 
 int tcp_connect(const char *host, unsigned short port);
 
 int udp_connect(const char *host, unsigned short port);
 
-typedef enum {
-    NONBLOCK_CONNECT_OK,
-    NONBLOCK_CONNECT_INPROGRESS,
-    NONBLOCK_CONNECT_ERROR
-} NONBLOCK_CONNECT_STATUS;
-
-NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short port, int *sock_fd);
+ExecuteState tcp_nonblock_connect(const char *host, unsigned short port, int *sock_fd);
 
 int create_tcp_listen(unsigned short port, int reuse);
 

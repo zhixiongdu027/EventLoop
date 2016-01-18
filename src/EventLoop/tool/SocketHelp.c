@@ -90,7 +90,7 @@ int set_no_block(int fd) {
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short port, int *sock_fd) {
+ExecuteState tcp_nonblock_connect(const char *host, unsigned short port, int *sock_fd) {
     assert(sock_fd != NULL);
     struct addrinfo hints, *res, *ressave;
     bzero(&hints, sizeof(struct addrinfo));
@@ -101,11 +101,11 @@ NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short po
     char server[6] = {'\0'};
     sprintf(server, "%d", port);
     if (getaddrinfo(host, server, &hints, &res) != 0) {
-        return NONBLOCK_CONNECT_ERROR;
+        return ExecuteError;
     }
     ressave = res;
 
-    NONBLOCK_CONNECT_STATUS return_value = NONBLOCK_CONNECT_ERROR;
+    ExecuteState return_value = ExecuteError;
     if (res != NULL) {
         *sock_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
         if (*sock_fd < 0 || fcntl(*sock_fd, F_SETFL, O_NONBLOCK) < 0) {
@@ -114,15 +114,15 @@ NONBLOCK_CONNECT_STATUS tcp_nonblock_connect(const char *host, unsigned short po
         else {
             int connect_res = connect(*sock_fd, res->ai_addr, res->ai_addrlen);
             if (connect_res == -1 && errno == EINPROGRESS) {
-                return_value = NONBLOCK_CONNECT_INPROGRESS;
+                return_value = ExecuteProcessing;
             }
             else if (connect_res == 0) {
-                return_value = NONBLOCK_CONNECT_OK;
+                return_value = ExecuteDone;
             }
             else {
                 close(*sock_fd);
                 *sock_fd = -1;
-                return_value = NONBLOCK_CONNECT_ERROR;
+                return_value = ExecuteError;
             }
         }
     }
