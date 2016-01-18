@@ -23,6 +23,8 @@ typedef uint32_t ChannelEvent;
 typedef uint32_t ChannelId;
 typedef std::unique_ptr<Channel> ChannelPtr;
 typedef std::function<void(EventLoopPtr &, ChannelPtr &, ChannelEvent)> ChannelCallback;
+typedef std::function<void(EventLoopPtr &, ChannelPtr &, void *user_arg, bool *again)> ChannelTask;
+typedef std::function<void(EventLoopPtr &, void *user_arg, bool *again)> EventLoopTask;
 
 constexpr ChannelEvent TODO_REGO = 1lu << 31;
 constexpr ChannelEvent TODO_SHUTDOWN = 1lu << 30;
