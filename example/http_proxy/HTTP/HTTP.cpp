@@ -3,8 +3,6 @@
 //
 
 #include "HTTP.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 static int url_dump(const char *data, size_t len, size_t *url_pos, size_t *url_len) {
     if (len < strlen("GET / HTTP/1.1\r\n")) {
@@ -116,7 +114,7 @@ HTTP::LINE_STATUS HTTP::get_http_line(const char *sz_buff, size_t sz_length, con
     return LINE_OPEN;
 }
 
-HTTP::HTTP_STATUS HTTP::parse(const char *buff, size_t length) {
+ExecuteState HTTP::parse(const char *buff, size_t length) {
     assert(parsed_index_ <= length);
     if (todo_ == TODO_GET_URL_OR_RESPONSE) {
         goto get_url_or_response;
@@ -137,7 +135,7 @@ HTTP::HTTP_STATUS HTTP::parse(const char *buff, size_t length) {
     HTTP::LINE_STATUS line_status;//= get_http_line(buff + parsed_index_, length - parsed_index_, &line, &line_length);
     line_status = get_http_line(buff + parsed_index_, length - parsed_index_, &line, &line_length);
     if (line_status == LINE_OPEN) {
-        return NEED_MORE;
+        return ExecuteProcessing;
     }
     parsed_index_ += line_length;
     size_t url_or_response_pos;
@@ -161,7 +159,7 @@ HTTP::HTTP_STATUS HTTP::parse(const char *buff, size_t length) {
         size_t line_length;
         LINE_STATUS line_status = get_http_line(buff + parsed_index_, length - parsed_index_, &line, &line_length);
         if (line_status == LINE_OPEN) {
-            return NEED_MORE;
+            return ExecuteProcessing;
         }
         parsed_index_ += line_length;
         if (line_length == 2) {
@@ -202,51 +200,51 @@ HTTP::HTTP_STATUS HTTP::parse(const char *buff, size_t length) {
     switch (body_len_type_) {
         case LENGTH:
             if (parsed_index_ + body_len_value_ > length) {
-                return NEED_MORE;
+                return ExecuteProcessing;
             }
             else if (parsed_index_ + body_len_value_ == length) {
                 body_table_.push_back(std::make_pair(parsed_index_, body_len_value_));
                 parsed_index_ = length;
-                return OK;
+                return ExecuteDone;
             }
             else {
-                return BAD;
+                return ExecuteError;
             }
         case CHUNCK:
             if (!have_chunck_end(buff, length)) {
-                return NEED_MORE;
+                return ExecuteProcessing;
             }
             else {
                 while (true) {
                     const char *chunck_split = (const char *) memmem(buff + parsed_index_, length - parsed_index_,
                                                                      "\r\n", strlen("\r\n"));
                     if (chunck_split == NULL) {
-                        return BAD;
+                        return ExecuteError;
                     }
                     int data_length = strtol(buff + parsed_index_, NULL, 16);
                     const char *data_begin = chunck_split + strlen("\r\n");
                     const char *data_end = data_begin + data_length;
 
                     if (data_end + strlen("\r\n") > buff + length) {
-                        return NEED_MORE;
+                        return ExecuteProcessing;
                     }
                     assert(*(data_end) == '\r' && *(data_end + 1) == '\n');
 
                     parsed_index_ = data_end + strlen("\r\n") - buff;
                     if (data_length == 0) {
                         assert(parsed_index_ == length);
-                        return OK;
+                        return ExecuteDone;
                     }
                     body_table_.push_back(std::make_pair(data_begin - buff, data_length));
                 }
             }
         case NOLENGTH:
             body_table_.push_back(std::make_pair(parsed_index_, length - parsed_index_));
-            return OK;
+            return ExecuteDone;
         default:
-            return BAD;
+            return ExecuteError;
     }
 
     error:
-    return BAD;
+    return ExecuteError;
 }

@@ -41,11 +41,11 @@ void ProxyServer::proxy_client_connect_cb(EventLoopPtr &loop_ptr, ChannelPtr &ch
         do {
             ChannelContext *channel_context = static_cast<ChannelContext *>(channel_ptr->context.ptr);
             StreamBuffer *buffer = channel_ptr->get_read_buffer();
-            HTTP::HTTP_STATUS parser_status = channel_context->http_parser.parse(buffer->peek(), buffer->peek_able());
-            if (parser_status == HTTP::NEED_MORE) {
+            ExecuteState parser_status = channel_context->http_parser.parse(buffer->peek(), buffer->peek_able());
+            if (parser_status == ExecuteProcessing) {
                 return;
             }
-            if (parser_status == HTTP::BAD) {
+            if (parser_status == ExecuteError) {
                 break;
             }
             auto &head_info = channel_context->http_parser.head_info;

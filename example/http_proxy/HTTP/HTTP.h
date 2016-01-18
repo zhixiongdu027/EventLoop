@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string.h>
+#include "EventLoop/tool/ExecuteState.h"
 
 /*  http 解析 基于以下假定
  * 1：一个请求包发送完毕，在接收所有响应数据之前不会再次发送请求
@@ -20,12 +21,6 @@
 
 class HTTP {
 public:
-    enum HTTP_STATUS {
-        NEED_MORE = 0,
-        OK,
-        BAD
-    };
-
     enum TODO {
         TODO_GET_URL_OR_RESPONSE,
         TODO_GET_HEAD,
@@ -55,7 +50,7 @@ public:
         body_len_type_ = UNKNOWN;
     }
 
-    HTTP_STATUS parse(const char *buff, size_t length);
+    ExecuteState parse(const char *buff, size_t length);
 
     void clear() {
         parsed_index_ = 0;
