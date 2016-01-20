@@ -62,13 +62,13 @@ public:
         is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
     }
 
-    inline void send_block_data(const char *data, size_t len) noexcept {
+    inline void send_block_data(const char *data, size_t data_len) noexcept {
         //[check_len:sizeof(uint32_t)] [data_len:sizeof(uint32_t)] [data : data_len ]
-        //check_len = data_len+sizeof(uint32_t)*2 ;
+        //check_len = data_len+sizeof(uint32_t)*1 ;
         assert(data != nullptr);
-        write_buffer_.append_uint32((uint32_t) (len + sizeof(uint32_t) * 1));
-        write_buffer_.append_uint32((uint32_t) (len));
-        send(data, len);
+        write_buffer_.append_uint32((uint32_t) (sizeof(uint32_t) * 1 + data_len));
+        write_buffer_.append_uint32((uint32_t) (data_len));
+        send(data, data_len);
     }
 
     ExecuteState peek_block_data(char **data, size_t *len);
