@@ -14,6 +14,8 @@
 #include "tool/ExecuteState.h"
 #include "tool/TaskWheel.h"
 #include "tool/StreamBuffer.h"
+#include <json/json.h>
+#include <google/protobuf/message.h>
 
 class Channel : public NonCopyable {
     friend class EventLoop;
@@ -60,37 +62,19 @@ public:
         is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
     }
 
-    inline void send_block_data(const char *data, uint32_t len) {
-        uint32_t total_len = (uint32_t) (sizeof(uint32_t) * 2 + len);
-        write_buffer_.append_uint32(total_len);
-        write_buffer_.append_uint32(len);
+    inline void send_block_data(const char *data, size_t len) noexcept {
+        //[total_len:sizeof(uint32_t)] [data_len:sizeof(uint32_t)] [data : data_len ]
+        //total_len = data_len+sizeof(uint32_t)*2 ;
+        assert(data != nullptr);
+        write_buffer_.append_uint32((uint32_t) (len + sizeof(uint32_t) * 2));
+        write_buffer_.append_uint32((uint32_t) (len));
         send(data, len);
     }
 
-    ExecuteState get_block_data(char **begin, size_t *len) {
-        assert(begin != nullptr);
-        assert(*begin != nullptr);
-        assert(len != nullptr);
+    ExecuteState peek_block_data(char **data, size_t *len);
 
-        size_t peek_able = read_buffer_.peek_able();
-        if (peek_able < sizeof(uint32_t) * 2) {
-            return ExecuteProcessing;
-        }
-        uint32_t total_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 0);
-        uint32_t data_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 1);
-        if (total_len != data_len + sizeof(uint32_t) * 2) {
-            return ExecuteError;
-        }
-        if (peek_able < total_len) {
-            return ExecuteProcessing;
-        }
-        *begin = read_buffer_.peek(sizeof(uint32_t) * 2);
-        *len = data_len;
-        return ExecuteDone;
-    }
-
-    void discard_block_data() {
-        read_buffer_.discard(read_buffer_.peek_uint32());
+    inline void discard_block_data(size_t len) {
+        read_buffer_.discard(len);
     }
 
     ~Channel() noexcept {
