@@ -277,7 +277,7 @@ int StreamBuffer::write_n(int fd, size_t len, size_t *actual_write) {
 }
 
 template<>
-void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) {
+void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept {
     lhs.swap(rhs);
 }
 

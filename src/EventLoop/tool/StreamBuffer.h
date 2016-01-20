@@ -312,7 +312,7 @@ private:
 
 namespace std {
     template<>
-    void swap(StreamBuffer &lhs, StreamBuffer &rhs);
+    void swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept;
 };
 
 #endif  // EVENTLOOP_TOOL_STREAMBUFFER_H
