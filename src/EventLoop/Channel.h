@@ -63,10 +63,10 @@ public:
     }
 
     inline void send_block_data(const char *data, size_t len) noexcept {
-        //[total_len:sizeof(uint32_t)] [data_len:sizeof(uint32_t)] [data : data_len ]
-        //total_len = data_len+sizeof(uint32_t)*2 ;
+        //[check_len:sizeof(uint32_t)] [data_len:sizeof(uint32_t)] [data : data_len ]
+        //check_len = data_len+sizeof(uint32_t)*2 ;
         assert(data != nullptr);
-        write_buffer_.append_uint32((uint32_t) (len + sizeof(uint32_t) * 2));
+        write_buffer_.append_uint32((uint32_t) (len + sizeof(uint32_t) * 1));
         write_buffer_.append_uint32((uint32_t) (len));
         send(data, len);
     }
