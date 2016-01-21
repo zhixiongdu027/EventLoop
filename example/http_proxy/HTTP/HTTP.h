@@ -15,10 +15,9 @@
 #include "EventLoop/tool/ExecuteState.h"
 
 /*  http 解析 基于以下假定
- * 1：一个请求包发送完毕，在接收所有响应数据之前不会再次发送请求
- * 2：假定所有进入数据都是基于标准 http 格式---对非标准 http 未严格判断
-  */
-
+ * 1: 所有进入数据都是标准 http 格式--未严格检查错误
+ * 2：一个请求包发送完毕，在接收所有响应数据之前不会再次发送请求
+ */
 class HTTP {
 public:
     enum TODO {
@@ -28,7 +27,6 @@ public:
     };
 
 private:
-
     enum LINE_STATUS {
         LINE_OPEN = 0, LINE_OK = 1
     };
@@ -36,7 +34,7 @@ private:
     enum BODY_LEN_TYPE {
         UNKNOWN,
         NOLENGTH,
-        CHUNCK,
+        CHUNKED,
         LENGTH
     };
 
