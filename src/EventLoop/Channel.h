@@ -14,8 +14,6 @@
 #include "tool/ExecuteState.h"
 #include "tool/TaskWheel.h"
 #include "tool/StreamBuffer.h"
-#include <json/json.h>
-#include <google/protobuf/message.h>
 
 class Channel : public NonCopyable {
     friend class EventLoop;
@@ -62,7 +60,7 @@ public:
         is_socket_ ? send_to_socket(data, len) : send_to_normal(data, len);
     }
 
-    inline void send_block_data(const char *data, size_t data_len) noexcept {
+    inline void send_block_data(const char *data, size_t data_len) {
         //[check_len:sizeof(uint32_t)] [data_len:sizeof(uint32_t)] [data : data_len ]
         //check_len = data_len+sizeof(uint32_t)*1 ;
         assert(data != nullptr);
