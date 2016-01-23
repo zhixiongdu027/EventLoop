@@ -2,8 +2,8 @@
 // Created by adugeek on 1/24/16.
 //
 
-#ifndef EVENTLOOP_DISPATCH_H
-#define EVENTLOOP_DISPATCH_H
+#ifndef EVENTLOOP_TOOL_DISPATCH_H
+#define EVENTLOOP_TOOL_DISPATCH_H
 
 #include <functional>
 #include <unordered_map>
@@ -37,4 +37,4 @@ private:
     std::unordered_map<KeyType, CallAble> table_;
 };
 
-#endif //EVENTLOOP_DISPATCH_H
+#endif //EVENTLOOP_TOOL_DISPATCH_H
