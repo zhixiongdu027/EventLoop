@@ -14,9 +14,9 @@ class Dispatch {
 public:
     Dispatch() = default;
 
-    Dispatch(const std::unordered_map<int, std::function<void()> > &table) : table_(table) { };
+    Dispatch(const std::unordered_map<KeyType, std::function<void()> > &table) : table_(table) { };
 
-    Dispatch(std::unordered_map<int, std::function<void()> > &&table) : table_(std::move(table)) { };
+    Dispatch(std::unordered_map<KeyType, std::function<void()> > &&table) : table_(std::move(table)) { };
 
     Dispatch(std::initializer_list<std::pair<const KeyType, CallAble >> &&arg) : table_(
             std::forward<decltype(arg)>(arg)) { };
