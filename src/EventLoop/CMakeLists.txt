@@ -3,6 +3,7 @@
 set(EVENTLOOP_SOURCE_FILES
         tool/BlockingQueue.hpp
         tool/Copyable.h
+        tool/Dispatch.hpp
         tool/ExecuteState.h
         tool/Likely.h
         tool/SimpleEncode.h
