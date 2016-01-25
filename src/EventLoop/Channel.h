@@ -88,9 +88,9 @@ public:
     }
 
     inline void send_block_data(const char *type, size_t type_len, const char *data, size_t data_len) {
-        // [total_len : sizeof(uint32_t)] [block_len :sizeof(uint32_t)] [type_len : sizeof(uint32_t)] [data_len: sizeof(uin32)t)] [type : type_len ][data : data_len ]
+        // [total_len : sizeof(uint32_t)] [block_len :sizeof(uint32_t)] [type_len : sizeof(uint32_t)] [type : type_len ] [data_len: sizeof(uin32)t)] [data : data_len ]
 
-        // block_len=sizeof(type_len)+sizeof(data_len)+type_len + data_len = sizeof(uint32_t)*2+type_len + data_len;
+        // block_len=sizeof(type_len) + type_len + sizeof(data_len) + data_len = sizeof(uint32_t)*2+type_len + data_len;
 
         // total_len = sizeof(total_len) +sizeof(block_len) + block_len = sizeof(uint32_t)*4+type_len + data_len;
         assert(type != nullptr);
@@ -98,8 +98,8 @@ public:
         write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 4 + type_len + data_len));
         write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 2 + type_len + data_len));
         write_buffer_.append_uint32(uint32_t(type_len));
+        write_buffer_.append(type, type_len);
         write_buffer_.append_uint32(uint32_t(data_len));
-        send(type, type_len);
         send(data, data_len);
     }
 
@@ -109,47 +109,12 @@ public:
 
     ExecuteState peek_block_data(char **data, size_t *len);
 
-    ExecuteState peek_block_data(uint32_t *type, char **data, size_t *data_len) {
-        assert(type != nullptr);
-        assert(data != nullptr);
-        assert(data_len != nullptr);
-        char *peek_data;
-        size_t peek_len;
+    ExecuteState peek_block_data(uint32_t *type, char **data, size_t *data_len);
 
-        ExecuteState state = peek_block_data(&peek_data, &peek_len);
-        if (state != ExecuteDone) {
-            return state;
-        }
-        *type = read_buffer_.extract_uint32();
-        *data = peek_data + sizeof(uint32_t);
-        *data_len = peek_len - sizeof(uint32_t);
-        return ExecuteDone;
-    }
+    ExecuteState peek_block_data(std::string *type, char **data, size_t *data_len);
 
-    ExecuteState peek_block_data(std::string *type, char **data, size_t *data_len) {
-        assert(type != nullptr);
-        assert(data != nullptr);
-        assert(data_len != nullptr);
-        char *peek_data;
-        size_t peek_len;
-
-        ExecuteState state = peek_block_data(&peek_data, &peek_len);
-        if (state != ExecuteDone) {
-            return state;
-        }
-
-        uint32_t type_len = read_buffer_.extract_uint32();
-        *type = std::move(std::string(read_buffer_.peek(), type_len));
-        read_buffer_.discard(type_len);
-
-        *data = peek_data + sizeof(uint32_t) + type_len;
-        *data_len = peek_len - sizeof(uint32_t) - type_len;
-        return ExecuteDone;
-    }
-
-
-    inline void discard_block_data(size_t len) {
-        read_buffer_.discard(len);
+    inline void discard_block_data(size_t data_len) {
+        read_buffer_.discard(data_len);
     }
 
     ~Channel() noexcept {

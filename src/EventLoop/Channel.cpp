@@ -152,3 +152,43 @@ ExecuteState Channel::peek_block_data(char **data, size_t *len) {
     *len = block_len;
     return ExecuteDone;
 }
+
+ExecuteState Channel::peek_block_data(uint32_t *type, char **data, size_t *data_len) {
+    assert(type != nullptr);
+    assert(data != nullptr);
+    assert(data_len != nullptr);
+
+    char *peek_data;
+    size_t peek_len;
+
+    ExecuteState state = peek_block_data(&peek_data, &peek_len);
+    if (state != ExecuteDone) {
+        return state;
+    }
+
+    *type = read_buffer_.extract_uint32();
+    *data = read_buffer_.peek();
+    *data_len = peek_len - sizeof(uint32_t);
+    return ExecuteDone;
+}
+
+ExecuteState Channel::peek_block_data(std::string *type, char **data, size_t *data_len) {
+    assert(type != nullptr);
+    assert(data != nullptr);
+    assert(data_len != nullptr);
+    char *peek_data;
+    size_t peek_len;
+
+    ExecuteState state = peek_block_data(&peek_data, &peek_len);
+    if (state != ExecuteDone) {
+        return state;
+    }
+
+    uint32_t type_len = read_buffer_.extract_uint32();
+    *type = std::move(std::string(read_buffer_.peek(), type_len));
+    read_buffer_.discard(type_len);
+
+    *data_len = read_buffer_.extract_uint32();
+    *data = read_buffer_.peek();
+    return ExecuteDone;
+}
