@@ -91,6 +91,7 @@ public:
         // [total_len : sizeof(uint32_t)] [block_len :sizeof(uint32_t)] [type_len : sizeof(uint32_t)] [data_len: sizeof(uin32)t)] [type : type_len ][data : data_len ]
 
         // block_len=sizeof(type_len)+sizeof(data_len)+type_len + data_len = sizeof(uint32_t)*2+type_len + data_len;
+
         // total_len = sizeof(total_len) +sizeof(block_len) + block_len = sizeof(uint32_t)*4+type_len + data_len;
         assert(type != nullptr);
         assert(data != nullptr);
@@ -109,7 +110,6 @@ public:
     ExecuteState peek_block_data(uint32_t *type, char **data, size_t *data_len) {
         assert(type != nullptr);
         assert(data != nullptr);
-        assert(*data != nullptr);
         assert(data_len != nullptr);
         char *peek_data;
         size_t peek_len;
@@ -121,13 +121,13 @@ public:
         *type = read_buffer_.extract_uint32();
         *data = peek_data + sizeof(uint32_t);
         *data_len = peek_len - sizeof(uint32_t);
+        return ExecuteDone;
     }
 
     ExecuteState peek_block_data(std::string *type, char **data, size_t *data_len) {
         assert(type != nullptr);
         assert(data != nullptr);
-        assert(*data != nullptr);
-        assert(*data_len != nullptr);
+        assert(data_len != nullptr);
         char *peek_data;
         size_t peek_len;
 
@@ -142,6 +142,7 @@ public:
 
         *data = peek_data + sizeof(uint32_t) + type_len;
         *data_len = peek_len - sizeof(uint32_t) - type_len;
+        return ExecuteDone;
     }
 
 
