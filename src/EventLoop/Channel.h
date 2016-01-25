@@ -97,6 +97,8 @@ public:
         assert(data != nullptr);
         write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 4 + type_len + data_len));
         write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 2 + type_len + data_len));
+        write_buffer_.append_uint32(uint32_t(type_len));
+        write_buffer_.append_uint32(uint32_t(data_len));
         send(type, type_len);
         send(data, data_len);
     }
