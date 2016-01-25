@@ -96,6 +96,8 @@ public:
         assert(data != nullptr);
         write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 4 + type_len + data_len));
         write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 2 + type_len + data_len));
+        send(type, type_len);
+        send(data, data_len);
     }
 
     inline void send_block_data(const std::string &type, const char *data, size_t data_len) {
@@ -108,7 +110,7 @@ public:
         assert(type != nullptr);
         assert(data != nullptr);
         assert(*data != nullptr);
-        assert(*data_len != nullptr);
+        assert(data_len != nullptr);
         char *peek_data;
         size_t peek_len;
 
