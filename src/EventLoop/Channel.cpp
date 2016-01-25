@@ -134,22 +134,21 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
 
 ExecuteState Channel::peek_block_data(char **data, size_t *len) {
     assert(data != nullptr);
-    assert(*data != nullptr);
     assert(len != nullptr);
     size_t peek_able = read_buffer_.peek_able();
 
     if (peek_able < sizeof(uint32_t) * 2) { return ExecuteProcessing; }
 
-    uint32_t check_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 0);
-    uint32_t data_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 1);
-    if (check_len != data_len + sizeof(uint32_t) * 1) {
+    uint32_t total_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 0);
+    uint32_t block_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 1);
+    if (total_len != block_len + sizeof(uint32_t) * 2) {
         return ExecuteError;
     }
-    if (peek_able < check_len + sizeof(uint32_t)) {
+    if (peek_able < total_len) {
         return ExecuteProcessing;
     }
     read_buffer_.discard(sizeof(uint32_t) * 2);
     *data = read_buffer_.peek();
-    *len = data_len;
+    *len = block_len;
     return ExecuteDone;
 }
