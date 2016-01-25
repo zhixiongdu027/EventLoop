@@ -61,15 +61,87 @@ public:
     }
 
     inline void send_block_data(const char *data, size_t data_len) {
-        //[check_len:sizeof(uint32_t)] [data_len:sizeof(uint32_t)] [data : data_len ]
-        //check_len = data_len+sizeof(uint32_t)*1 ;
+        // [total_len : sizeof(uint32_t)] [block_len:sizeof(uint32_t)] [data : data_len ]
+
+        // block_len = data_len=sizeof(uint32_t)*0+data_len;
+
+        // total_len = sizeof(total_len)+ sizeof(block_len) + block_len = sizeof(uint32_t)*2+data_len;
+
         assert(data != nullptr);
-        write_buffer_.append_uint32((uint32_t) (sizeof(uint32_t) * 1 + data_len));
-        write_buffer_.append_uint32((uint32_t) (data_len));
+        write_buffer_.append_uint32((uint32_t) (sizeof(uint32_t) * 2 + data_len));
+        write_buffer_.append_uint32((uint32_t) (sizeof(uint32_t) * 0 + data_len));
         send(data, data_len);
     }
 
+    inline void send_block_data(uint32_t type, const char *data, size_t data_len) {
+        // [total_len : sizeof(uint32_t)] [ block_len :sizeof(uint32_t) ] [ type : sizeof(uint32_t)] [data : data_len ]
+
+        // block_len = sizeof(type) + data_len=sizeof(uint32_t)*1+data_len ;
+
+        // total_len = sizeof(total_len) +sizeof(block_len) + block_len = sizeof(uint32_t)*3+data_len;
+
+        assert(data != nullptr);
+        write_buffer_.append_uint32((uint32_t) (sizeof(uint32_t) * 3 + data_len));
+        write_buffer_.append_uint32((uint32_t) (sizeof(uint32_t) * 1 + data_len));
+        write_buffer_.append_uint32(type);
+        send(data, data_len);
+    }
+
+    inline void send_block_data(const char *type, size_t type_len, const char *data, size_t data_len) {
+        // [total_len : sizeof(uint32_t)] [block_len :sizeof(uint32_t)] [type_len : sizeof(uint32_t)] [data_len: sizeof(uin32)t)] [type : type_len ][data : data_len ]
+
+        // block_len=sizeof(type_len)+sizeof(data_len)+type_len + data_len = sizeof(uint32_t)*2+type_len + data_len;
+        // total_len = sizeof(total_len) +sizeof(block_len) + block_len = sizeof(uint32_t)*4+type_len + data_len;
+        assert(type != nullptr);
+        assert(data != nullptr);
+        write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 4 + type_len + data_len));
+        write_buffer_.append_uint32(uint32_t(sizeof(uint32_t) * 2 + type_len + data_len));
+    }
+
+    inline void send_block_data(const std::string &type, const char *data, size_t data_len) {
+        send_block_data(type.data(), type.size(), data, data_len);
+    }
+
     ExecuteState peek_block_data(char **data, size_t *len);
+
+    ExecuteState peek_block_data(uint32_t *type, char **data, size_t *data_len) {
+        assert(type != nullptr);
+        assert(data != nullptr);
+        assert(*data != nullptr);
+        assert(*data_len != nullptr);
+        char *peek_data;
+        size_t peek_len;
+
+        ExecuteState state = peek_block_data(&peek_data, &peek_len);
+        if (state != ExecuteDone) {
+            return state;
+        }
+        *type = read_buffer_.extract_uint32();
+        *data = peek_data + sizeof(uint32_t);
+        *data_len = peek_len - sizeof(uint32_t);
+    }
+
+    ExecuteState peek_block_data(std::string *type, char **data, size_t *data_len) {
+        assert(type != nullptr);
+        assert(data != nullptr);
+        assert(*data != nullptr);
+        assert(*data_len != nullptr);
+        char *peek_data;
+        size_t peek_len;
+
+        ExecuteState state = peek_block_data(&peek_data, &peek_len);
+        if (state != ExecuteDone) {
+            return state;
+        }
+
+        uint32_t type_len = read_buffer_.extract_uint32();
+        *type = std::move(std::string(read_buffer_.peek(), type_len));
+        read_buffer_.discard(type_len);
+
+        *data = peek_data + sizeof(uint32_t) + type_len;
+        *data_len = peek_len - sizeof(uint32_t) - type_len;
+    }
+
 
     inline void discard_block_data(size_t len) {
         read_buffer_.discard(len);
