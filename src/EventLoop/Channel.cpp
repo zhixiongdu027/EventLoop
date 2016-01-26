@@ -185,7 +185,7 @@ ExecuteState Channel::peek_block_data(std::string *type, char **data, size_t *da
     }
 
     uint32_t type_len = read_buffer_.extract_uint32();
-    *type = std::move(std::string(read_buffer_.peek(), type_len));
+    *type = std::string(read_buffer_.peek(), type_len);
     read_buffer_.discard(type_len);
 
     *data_len = read_buffer_.extract_uint32();
