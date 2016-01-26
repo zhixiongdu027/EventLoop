@@ -3,6 +3,7 @@
 
 // Author: adugeek
 
+#include <errno.h>
 #include <sys/uio.h>
 #include <unistd.h>
 #include "StreamBuffer.h"
