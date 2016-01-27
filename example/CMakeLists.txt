@@ -15,3 +15,5 @@ add_subdirectory("threadpool")
 add_subdirectory("encode")
 
 add_subdirectory("singleton")
+
+add_subdirectory("msgpack")

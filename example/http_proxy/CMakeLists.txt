@@ -8,5 +8,5 @@ set(EXAMPLE_TASK_SOURCE
         ProxyServer.cpp
         ProxyServer.h)
 
-add_executable(http_proxy ${EXAMPLE_TASK_SOURCE})
-target_link_libraries(http_proxy eventloop)
+add_executable(example_http_proxy ${EXAMPLE_TASK_SOURCE})
+target_link_libraries(example_http_proxy eventloop)
