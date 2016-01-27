@@ -33,7 +33,7 @@ void io_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent event) 
 
     uint32_t type;
     char *data;
-    size_t data_len = 100;
+    size_t data_len;
 
     while (true) {
         ExecuteState state = channel_ptr->peek_block_data(&type, &data, &data_len);
@@ -67,10 +67,7 @@ int main() {
                              ChannelEvent event
                      ) {
                          if (event != EVENT_IN) {
-                             loop_ptr->
-
-                                     stop();
-
+                             loop_ptr->stop();
                              return;
                          }
                          int client_fd = accept(channel_ptr->fd(), nullptr, nullptr);
