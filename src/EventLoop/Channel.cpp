@@ -40,6 +40,7 @@ void Channel::send_to_normal() {
 
 void Channel::send_to_normal(const void *data, size_t len) noexcept {
     assert(data != nullptr);
+    if (UNLIKELY(len == 0)) { return; }
     if (!is_nonblock_) {
         write_buffer_.append(data, len);
         channel_event_map_[id()] |= TODO_REGO;
@@ -85,6 +86,7 @@ void Channel::send_to_socket() {
 
 void Channel::send_to_socket(const void *data, size_t len) noexcept {
     assert(data != nullptr);
+    if (UNLIKELY(len == 0)) { return; }
     if (UNLIKELY(!is_connected_)) {
         write_buffer_.append(data, len);
         return;
