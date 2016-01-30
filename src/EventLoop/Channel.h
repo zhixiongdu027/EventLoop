@@ -102,6 +102,38 @@ private:
 template<typename T>
 void channel_send(ChannelPtr &channel_ptr, const T &t);
 
+template<>
+inline void channel_send<uint8_t>(ChannelPtr &channel_ptr, const uint8_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint8(t);
+}
+
+template<>
+inline void channel_send<uint16_t>(ChannelPtr &channel_ptr, const uint16_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint16(t);
+}
+
+template<>
+inline void channel_send<uint32_t>(ChannelPtr &channel_ptr, const uint32_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint32(t);
+}
+
+template<>
+inline void channel_send<uint64_t>(ChannelPtr &channel_ptr, const uint64_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint64(t);
+}
+
+template<>
+inline void channel_send<BlockData>(ChannelPtr &channel_ptr, const BlockData &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint32(uint32_t(sizeof(uint32_t) * 2 + t.len));
+    write_buffer->append_uint32(uint32_t(t.len));
+    channel_ptr->send(t.data, t.len);
+}
+
 template<typename T, typename ...Args>
 void channel_send(ChannelPtr &channel_ptr, const T &t, Args ... args) {
     channel_send(channel_ptr, t);
