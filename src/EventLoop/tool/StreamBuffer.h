@@ -13,12 +13,21 @@
 #include <endian.h>
 #include <algorithm>
 #include "Likely.h"
+#include "ExecuteState.h"
 /// +-------------------+------------------+------------------+
 /// |    prepend_able   |     peek_able    |    append_able   |
 /// |                   |                  |                  |
 /// +-------------------+------------------+------------------+
 /// |                   |                  |                  |
 ///memory       <=   peek_pos   <=     append_pos    <=   capacity
+
+struct BlockData {
+    BlockData() = default;
+
+    BlockData(const char *data, size_t len) : data(data), len(len) { };
+    const char *data;
+    size_t len;
+};
 
 class StreamBuffer {
 public:
@@ -315,5 +324,27 @@ namespace std {
     template<>
     void swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept;
 };
+
+template<typename T>
+void stream_buffer_append(StreamBuffer *buffer, const T &t);
+
+template<typename T, typename ... Args>
+void stream_buffer_append(StreamBuffer *buffer, const T &t, Args ... args) {
+    stream_buffer_append(buffer, t);
+    stream_buffer_append(buffer, std::forward<Args>(args)...);
+}
+
+template<typename T>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t);
+
+template<typename T, typename ... Args>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t, Args  ... args) {
+    ExecuteState state;
+    state = stream_buffer_peek(buffer, length, t);
+    if (state != ExecuteDone) {
+        return state;
+    }
+    return stream_buffer_peek(buffer, length, std::forward<Args>(args)...);
+}
 
 #endif  // EVENTLOOP_TOOL_STREAMBUFFER_H

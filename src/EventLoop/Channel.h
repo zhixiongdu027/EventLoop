@@ -99,4 +99,15 @@ private:
     StreamBuffer write_buffer_;
 };
 
+template<typename T>
+void channel_send(ChannelPtr &channel_ptr, const T &t);
+
+template<typename T, typename ...Args>
+void channel_send(ChannelPtr &channel_ptr, const T &t, Args ... args) {
+    channel_send(channel_ptr, t);
+    channel_send(channel_ptr, std::forward<Args>(args)...);
+
+    channel_ptr->send();
+};
+
 #endif // EVENTLOOP_CHANNEL_H

@@ -32,11 +32,11 @@ void io_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent event) 
     }
 
     uint32_t type;
-    char *data;
-    size_t data_len;
-
+    BlockData block;
+    StreamBuffer *read_buffer = channel_ptr->get_read_buffer();
     while (true) {
-        ExecuteState state = channel_ptr->peek_block_data(&type, &data, &data_len);
+        size_t all = 0;
+        ExecuteState state = stream_buffer_peek(read_buffer, &all, &type, &block);
         if (state == ExecuteError) {
             loop_ptr->erase_channel(channel_ptr->id());
             return;
@@ -45,10 +45,10 @@ void io_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelEvent event) 
             return;
         }
         else if (state == ExecuteDone) {
-            msgpack::unpacked unpacked = msgpack::unpack(data, data_len);
+            msgpack::unpacked unpacked = msgpack::unpack(block.data, block.len);
             std::unique_ptr<Message> ptr(new Message(type, std::move(unpacked)));
             queue.push(std::move(ptr));
-            channel_ptr->discard_block_data(data_len);
+            read_buffer->discard(all);
         }
     }
 }
@@ -83,15 +83,15 @@ int main() {
         int socket_fd = tcp_connect("127.0.0.1", 10000);
         ChannelPtr &channel = send_loop.add_channel(socket_fd, true, false, -1,
                                                     [](EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr,
-                                                       ChannelEvent event) {
+                                                       ChannelEvent) {
                                                         loop_ptr->erase_channel(channel_ptr->id());
                                                     });
         msgpack::sbuffer buffer;
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < 10; ++i) {
             A temp;
             buffer.clear();
             msgpack::pack(buffer, temp);
-            channel->send_block_data(i, buffer.data(), buffer.size());
+            channel_send(channel, (uint32_t) i, BlockData(buffer.data(), buffer.size()));
         }
         std::cout << "send thread will exit" << std::endl;
     }

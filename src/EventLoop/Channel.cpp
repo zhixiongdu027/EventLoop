@@ -132,63 +132,34 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
     }
 }
 
-ExecuteState Channel::peek_block_data(char **data, size_t *len) {
-    assert(data != nullptr);
-    assert(len != nullptr);
-    size_t peek_able = read_buffer_.peek_able();
-
-    if (peek_able < sizeof(uint32_t) * 2) { return ExecuteProcessing; }
-
-    uint32_t total_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 0);
-    uint32_t block_len = read_buffer_.peek_uint32(sizeof(uint32_t) * 1);
-    if (total_len != block_len + sizeof(uint32_t) * 2) {
-        return ExecuteError;
-    }
-    if (peek_able < total_len) {
-        return ExecuteProcessing;
-    }
-    read_buffer_.discard(sizeof(uint32_t) * 2);
-    *data = read_buffer_.peek();
-    *len = block_len;
-    return ExecuteDone;
+template<>
+void channel_send<uint8_t>(ChannelPtr &channel_ptr, const uint8_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint8(t);
 }
 
-ExecuteState Channel::peek_block_data(uint32_t *type, char **data, size_t *data_len) {
-    assert(type != nullptr);
-    assert(data != nullptr);
-    assert(data_len != nullptr);
-
-    char *peek_data;
-    size_t peek_len;
-
-    ExecuteState state = peek_block_data(&peek_data, &peek_len);
-    if (state != ExecuteDone) {
-        return state;
-    }
-
-    *type = read_buffer_.extract_uint32();
-    *data = read_buffer_.peek();
-    *data_len = peek_len - sizeof(uint32_t);
-    return ExecuteDone;
+template<>
+void channel_send<uint16_t>(ChannelPtr &channel_ptr, const uint16_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint16(t);
 }
 
-ExecuteState Channel::peek_block_data(std::string *type, char **data, size_t *data_len) {
-    assert(type != nullptr);
-    assert(data != nullptr);
-    assert(data_len != nullptr);
-    char *peek_data;
-    size_t peek_len;
+template<>
+void channel_send<uint32_t>(ChannelPtr &channel_ptr, const uint32_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint32(t);
+}
 
-    ExecuteState state = peek_block_data(&peek_data, &peek_len);
-    if (state != ExecuteDone) {
-        return state;
-    }
+template<>
+void channel_send<uint64_t>(ChannelPtr &channel_ptr, const uint64_t &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint64(t);
+}
 
-    uint32_t type_len = read_buffer_.extract_uint32();
-    *type = std::string(read_buffer_.peek(), type_len);
-    read_buffer_.discard(type_len);
-
-    *data_len = read_buffer_.extract_uint32();
-    *data = read_buffer_.peek();
-    return ExecuteDone;
+template<>
+void channel_send<BlockData>(ChannelPtr &channel_ptr, const BlockData &t) {
+    StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
+    write_buffer->append_uint32(uint32_t(sizeof(uint32_t) * 2 + t.len));
+    write_buffer->append_uint32(uint32_t(t.len));
+    channel_ptr->send(t.data, t.len);
 }

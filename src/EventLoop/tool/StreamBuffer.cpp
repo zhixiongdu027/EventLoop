@@ -282,3 +282,89 @@ void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept {
     lhs.swap(rhs);
 }
 
+template<>
+void stream_buffer_append<uint8_t>(StreamBuffer *buffer, const uint8_t &t) {
+    buffer->append_uint8(t);
+}
+
+template<>
+void stream_buffer_append<uint16_t>(StreamBuffer *buffer, const uint16_t &t) {
+    buffer->append_uint16(t);
+}
+
+template<>
+void stream_buffer_append<uint32_t>(StreamBuffer *buffer, const uint32_t &t) {
+    buffer->append_uint32(t);
+}
+
+template<>
+void stream_buffer_append<uint64_t>(StreamBuffer *buffer, const uint64_t &t) {
+    buffer->append_uint64(t);
+}
+
+template<>
+void stream_buffer_append<BlockData>(StreamBuffer *buffer, const BlockData &t) {
+    buffer->append_uint32((uint32_t) (sizeof(uint32_t) * 2 + t.len));
+    buffer->append_uint32((uint32_t) (sizeof(uint32_t) * 0 + t.len));
+    buffer->append(t.data, t.len);
+}
+
+template<>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint8_t *t) {
+    if (buffer->peek_able() > *length + sizeof(uint8_t)) {
+        *t = buffer->peek_uint8(*length);
+        *length += sizeof(uint8_t);
+        return ExecuteDone;
+    }
+    return ExecuteProcessing;
+}
+
+template<>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint16_t *t) {
+    if (buffer->peek_able() > *length + sizeof(uint16_t)) {
+        *t = buffer->peek_uint16(*length);
+        *length += sizeof(uint16_t);
+        return ExecuteDone;
+    }
+    return ExecuteProcessing;
+}
+
+template<>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint32_t *t) {
+    if (buffer->peek_able() > *length + sizeof(uint32_t)) {
+        *t = buffer->peek_uint32(*length);
+        *length += sizeof(uint32_t);
+        return ExecuteDone;
+    }
+    return ExecuteProcessing;
+}
+
+template<>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint64_t *t) {
+    if (buffer->peek_able() > *length + sizeof(uint64_t)) {
+        *t = buffer->peek_uint64(*length);
+        *length += sizeof(uint64_t);
+        return ExecuteDone;
+    }
+    return ExecuteProcessing;
+
+}
+
+template<>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, BlockData *t) {
+    if (buffer->peek_able() < *length + sizeof(uint32_t) * 2) {
+        return ExecuteProcessing;
+    }
+    uint32_t total_len = buffer->peek_uint32(*length + sizeof(uint32_t) * 0);
+    uint32_t block_len = buffer->peek_uint32(*length + sizeof(uint32_t) * 1);
+    if (total_len != block_len + sizeof(uint32_t) * 2) {
+        return ExecuteError;
+    }
+    if (buffer->peek_able() < *length + total_len) {
+        return ExecuteProcessing;
+    }
+    t->data = buffer->peek(*length + sizeof(uint32_t) * 2);
+    t->len = block_len;
+    *length += sizeof(uint32_t) * 2 + block_len;
+    return ExecuteDone;
+}

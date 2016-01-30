@@ -11,7 +11,6 @@ set(EVENTLOOP_SOURCE_FILES
         tool/SocketHelp.h
         tool/StreamBuffer.cpp
         tool/StreamBuffer.h
-        tool/StreamBufferTemplate.h
         tool/TaskWheel.h
         tool/ThreadPool.h
         Channel.cpp
