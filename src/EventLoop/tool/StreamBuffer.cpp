@@ -321,7 +321,6 @@ ExecuteState stream_buffer_peek<uint64_t>(StreamBuffer *buffer, size_t *length, 
         return ExecuteDone;
     }
     return ExecuteProcessing;
-
 }
 
 template<>
