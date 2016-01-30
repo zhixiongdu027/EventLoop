@@ -355,13 +355,11 @@ inline void stream_buffer_append<BlockData>(StreamBuffer *buffer, const BlockDat
     buffer->append(t.data, t.len);
 }
 
-
 template<typename T, typename ... Args>
 void stream_buffer_append(StreamBuffer *buffer, const T &t, Args ... args) {
     stream_buffer_append(buffer, t);
     stream_buffer_append(buffer, std::forward<Args>(args)...);
 }
-
 
 template<typename T>
 void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t);
@@ -378,13 +376,11 @@ inline void stream_buffer_quick_peek<uint16_t>(StreamBuffer *buffer, size_t *len
     *length += sizeof(uint16_t);
 }
 
-
 template<>
 inline void stream_buffer_quick_peek<uint32_t>(StreamBuffer *buffer, size_t *length, uint32_t *t) {
     *t = buffer->peek_uint32(*length);
     *length += sizeof(uint32_t);
 }
-
 
 template<>
 inline void stream_buffer_quick_peek<uint64_t>(StreamBuffer *buffer, size_t *length, uint64_t *t) {
