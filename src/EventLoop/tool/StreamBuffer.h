@@ -362,68 +362,53 @@ void stream_buffer_append(StreamBuffer *buffer, const T &t, Args ... args) {
     stream_buffer_append(buffer, std::forward<Args>(args)...);
 }
 
+
 template<typename T>
-ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t);
+void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t);
 
 template<>
-inline ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint8_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint8_t)) {
-        *t = buffer->peek_uint8(*length);
-        *length += sizeof(uint8_t);
-        return ExecuteDone;
-    }
-    return ExecuteProcessing;
+inline void stream_buffer_quick_peek<uint8_t>(StreamBuffer *buffer, size_t *length, uint8_t *t) {
+    *t = buffer->peek_uint8(*length);
+    *length += sizeof(uint8_t);
 }
 
 template<>
-inline ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint16_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint16_t)) {
-        *t = buffer->peek_uint16(*length);
-        *length += sizeof(uint16_t);
-        return ExecuteDone;
-    }
-    return ExecuteProcessing;
+inline void stream_buffer_quick_peek<uint16_t>(StreamBuffer *buffer, size_t *length, uint16_t *t) {
+    *t = buffer->peek_uint16(*length);
+    *length += sizeof(uint16_t);
+}
+
+
+template<>
+inline void stream_buffer_quick_peek<uint32_t>(StreamBuffer *buffer, size_t *length, uint32_t *t) {
+    *t = buffer->peek_uint32(*length);
+    *length += sizeof(uint32_t);
+}
+
+
+template<>
+inline void stream_buffer_quick_peek<uint64_t>(StreamBuffer *buffer, size_t *length, uint64_t *t) {
+    *t = buffer->peek_uint64(*length);
+    *length += sizeof(uint64_t);
 }
 
 template<>
-inline ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint32_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint32_t)) {
-        *t = buffer->peek_uint32(*length);
-        *length += sizeof(uint32_t);
-        return ExecuteDone;
-    }
-    return ExecuteProcessing;
-}
-
-template<>
-inline ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, uint64_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint64_t)) {
-        *t = buffer->peek_uint64(*length);
-        *length += sizeof(uint64_t);
-        return ExecuteDone;
-    }
-    return ExecuteProcessing;
-
-}
-
-template<>
-inline ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, BlockData *t) {
-    if (buffer->peek_able() < *length + sizeof(uint32_t) * 2) {
-        return ExecuteProcessing;
-    }
-    uint32_t total_len = buffer->peek_uint32(*length + sizeof(uint32_t) * 0);
+inline void stream_buffer_quick_peek<BlockData>(StreamBuffer *buffer, size_t *length, BlockData *t) {
     uint32_t block_len = buffer->peek_uint32(*length + sizeof(uint32_t) * 1);
-    if (total_len != block_len + sizeof(uint32_t) * 2) {
-        return ExecuteError;
-    }
-    if (buffer->peek_able() < *length + total_len) {
-        return ExecuteProcessing;
-    }
     t->data = buffer->peek(*length + sizeof(uint32_t) * 2);
     t->len = block_len;
     *length += sizeof(uint32_t) * 2 + block_len;
-    return ExecuteDone;
 }
+
+template<typename T, typename ... Args>
+void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t, Args  ... args) {
+    stream_buffer_peek(buffer, length, t);
+    stream_buffer_peek(buffer, length, std::forward<Args>(args)...);
+}
+
+
+template<typename T>
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t);
 
 template<typename T, typename ... Args>
 ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t, Args  ... args) {
@@ -434,5 +419,6 @@ ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t, Args
     }
     return stream_buffer_peek(buffer, length, std::forward<Args>(args)...);
 }
+
 
 #endif  // EVENTLOOP_TOOL_STREAMBUFFER_H

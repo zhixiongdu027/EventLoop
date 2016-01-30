@@ -14,8 +14,7 @@ int main() {
     uint64_t z;
     BlockData block3;
 
-    ExecuteState state = stream_buffer_peek(&buffer, &all, &x, &block1, &y, &block2, &z, &block3);
-    std::cout << state << std::endl;
+    stream_buffer_quick_peek(&buffer, &all, &x, &block1, &y, &block2, &z, &block3);
     std::cout << std::string(block1.data, block1.len) << " " << std::string(block2.data, block2.len) << " " <<
     std::string(block3.data, block3.len) << std::endl;
     std::cout << all << " " << x << " " << y << " " << z << " " << std::endl;
