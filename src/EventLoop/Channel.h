@@ -135,7 +135,7 @@ inline void channel_send<BlockData>(ChannelPtr &channel_ptr, const BlockData &t)
 }
 
 template<typename T, typename ...Args>
-void channel_send(ChannelPtr &channel_ptr, const T &t, Args ... args) {
+void channel_send(ChannelPtr &channel_ptr, const T &t, Args &&... args) {
     channel_send(channel_ptr, t);
     channel_send(channel_ptr, std::forward<Args>(args)...);
     channel_ptr->send();

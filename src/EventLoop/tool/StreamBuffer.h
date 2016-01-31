@@ -356,7 +356,7 @@ inline void stream_buffer_append<BlockData>(StreamBuffer *buffer, const BlockDat
 }
 
 template<typename T, typename ... Args>
-void stream_buffer_append(StreamBuffer *buffer, const T &t, Args ... args) {
+void stream_buffer_append(StreamBuffer *buffer, const T &t, Args &&... args) {
     stream_buffer_append(buffer, t);
     stream_buffer_append(buffer, std::forward<Args>(args)...);
 }
@@ -397,7 +397,7 @@ inline void stream_buffer_quick_peek<BlockData>(StreamBuffer *buffer, size_t *le
 }
 
 template<typename T, typename ... Args>
-void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t, Args  ... args) {
+void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t, Args &&... args) {
     stream_buffer_peek(buffer, length, t);
     stream_buffer_peek(buffer, length, std::forward<Args>(args)...);
 }
@@ -407,7 +407,7 @@ template<typename T>
 ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t);
 
 template<typename T, typename ... Args>
-ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t, Args  ... args) {
+ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t, Args &&... args) {
     ExecuteState state;
     state = stream_buffer_peek(buffer, length, t);
     if (state != ExecuteDone) {

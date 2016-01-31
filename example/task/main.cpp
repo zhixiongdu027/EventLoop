@@ -44,5 +44,9 @@ int main() {
         printf("I am lam\n");
     });
 
+    loop.add_task_on_loop(false, 20, nullptr, [](EventLoopPtr &loop_ptr, void *, bool *) {
+        loop_ptr->stop();
+    });
+
     loop.start();
 }
