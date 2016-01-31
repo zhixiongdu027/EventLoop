@@ -277,11 +277,6 @@ int StreamBuffer::write_n(int fd, size_t len, size_t *actual_write) {
     return 0;
 }
 
-template<>
-void std::swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept {
-    lhs.swap(rhs);
-}
-
 
 template<>
 ExecuteState stream_buffer_peek<uint8_t>(StreamBuffer *buffer, size_t *length, uint8_t *t) {

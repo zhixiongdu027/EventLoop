@@ -322,7 +322,9 @@ private:
 
 namespace std {
     template<>
-    void swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept;
+    inline void swap(StreamBuffer &lhs, StreamBuffer &rhs) noexcept {
+        lhs.swap(rhs);
+    };
 };
 
 template<typename T>
