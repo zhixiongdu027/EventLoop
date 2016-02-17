@@ -400,8 +400,8 @@ inline void stream_buffer_quick_peek<BlockData>(StreamBuffer *buffer, size_t *le
 
 template<typename T, typename ... Args>
 void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t, Args &&... args) {
-    stream_buffer_peek(buffer, length, t);
-    stream_buffer_peek(buffer, length, std::forward<Args>(args)...);
+    stream_buffer_quick_peek(buffer, length, t);
+    stream_buffer_quick_peek(buffer, length, std::forward<Args>(args)...);
 }
 
 
