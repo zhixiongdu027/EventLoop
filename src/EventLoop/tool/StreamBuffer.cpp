@@ -280,7 +280,7 @@ int StreamBuffer::write_n(int fd, size_t len, size_t *actual_write) {
 
 template<>
 ExecuteState stream_buffer_peek<uint8_t>(StreamBuffer *buffer, size_t *length, uint8_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint8_t)) {
+    if (buffer->peek_able() >= *length + sizeof(uint8_t)) {
         *t = buffer->peek_uint8(*length);
         *length += sizeof(uint8_t);
         return ExecuteDone;
@@ -290,7 +290,7 @@ ExecuteState stream_buffer_peek<uint8_t>(StreamBuffer *buffer, size_t *length, u
 
 template<>
 ExecuteState stream_buffer_peek<uint16_t>(StreamBuffer *buffer, size_t *length, uint16_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint16_t)) {
+    if (buffer->peek_able() >= *length + sizeof(uint16_t)) {
         *t = buffer->peek_uint16(*length);
         *length += sizeof(uint16_t);
         return ExecuteDone;
@@ -300,7 +300,7 @@ ExecuteState stream_buffer_peek<uint16_t>(StreamBuffer *buffer, size_t *length, 
 
 template<>
 ExecuteState stream_buffer_peek<uint32_t>(StreamBuffer *buffer, size_t *length, uint32_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint32_t)) {
+    if (buffer->peek_able() >= *length + sizeof(uint32_t)) {
         *t = buffer->peek_uint32(*length);
         *length += sizeof(uint32_t);
         return ExecuteDone;
@@ -310,7 +310,7 @@ ExecuteState stream_buffer_peek<uint32_t>(StreamBuffer *buffer, size_t *length, 
 
 template<>
 ExecuteState stream_buffer_peek<uint64_t>(StreamBuffer *buffer, size_t *length, uint64_t *t) {
-    if (buffer->peek_able() > *length + sizeof(uint64_t)) {
+    if (buffer->peek_able() >= *length + sizeof(uint64_t)) {
         *t = buffer->peek_uint64(*length);
         *length += sizeof(uint64_t);
         return ExecuteDone;
