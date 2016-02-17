@@ -99,6 +99,7 @@ private:
     StreamBuffer write_buffer_;
 };
 
+//fixme
 template<typename T>
 void channel_send(ChannelPtr &channel_ptr, const T &t);
 
