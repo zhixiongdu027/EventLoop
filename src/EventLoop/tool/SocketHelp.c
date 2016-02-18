@@ -14,7 +14,8 @@
 #include <assert.h>
 
 int tcp_connect(const char *host, unsigned short port) {
-
+    assert(host != NULL);
+    assert(port > 0 && port <= 65535);
     struct addrinfo hints, *res, *ressave;
 
     bzero(&hints, sizeof(struct addrinfo));

@@ -22,10 +22,12 @@
 ///memory       <=   peek_pos   <=     append_pos    <=   capacity
 
 struct BlockData {
-    BlockData() = default;
+    BlockData() : data(nullptr), len(0) { };
 
     BlockData(const char *data, size_t len) : data(data), len(len) { };
+
     const char *data;
+
     size_t len;
 };
 
@@ -404,7 +406,6 @@ void stream_buffer_quick_peek(StreamBuffer *buffer, size_t *length, T *t, Args &
     stream_buffer_quick_peek(buffer, length, std::forward<Args>(args)...);
 }
 
-
 template<typename T>
 ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t);
 
@@ -417,6 +418,5 @@ ExecuteState stream_buffer_peek(StreamBuffer *buffer, size_t *length, T *t, Args
     }
     return stream_buffer_peek(buffer, length, std::forward<Args>(args)...);
 }
-
 
 #endif  // EVENTLOOP_TOOL_STREAMBUFFER_H
