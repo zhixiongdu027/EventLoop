@@ -132,7 +132,7 @@ inline void channel_send<BlockData>(ChannelPtr &channel_ptr, const BlockData &t)
     StreamBuffer *write_buffer = channel_ptr->get_write_buffer();
     write_buffer->append_uint32(uint32_t(sizeof(uint32_t) * 2 + t.len));
     write_buffer->append_uint32(uint32_t(t.len));
-    channel_ptr->send(t.data, t.len);
+    t.data != nullptr ? channel_ptr->send(t.data, t.len) : channel_ptr->send();
 }
 
 template<typename T, typename ...Args>
