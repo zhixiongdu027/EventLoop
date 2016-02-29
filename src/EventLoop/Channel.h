@@ -99,7 +99,7 @@ private:
     StreamBuffer write_buffer_;
 };
 
-//fixme
+//fixme ,当只调用 channel_send(ChannelPtr &channel_ptr, const T &t) ，且 T 为 {uint8_t ,uint16_t ,uint32_t ,uint64_t}时 ， ChannelPtr->send()没被调用;
 template<typename T>
 void channel_send(ChannelPtr &channel_ptr, const T &t);
 
