@@ -6,8 +6,8 @@
 #ifndef EVENTLOOP_FORWARD_H
 #define EVENTLOOP_FORWARD_H
 
-#include <errno.h>
-#include <stdint.h>
+
+#include <cstdint>
 #include <memory>
 #include <functional>
 #include "tool/Likely.h"

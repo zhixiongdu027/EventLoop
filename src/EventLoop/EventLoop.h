@@ -39,7 +39,7 @@ public:
             cb(this, user_arg, &again);
         }
         if (LIKELY(again)) {
-            add_task_on_loop_recursive(seconds, user_arg, std::move(cb));
+            add_task_on_loop_recursive(seconds, user_arg, cb);
         }
     }
 
@@ -52,7 +52,7 @@ public:
                 cb(this, channel_map_[channel_id], user_arg, &again);
             }
             if (LIKELY(again)) {
-                add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
+                add_task_on_channel_recursive(channel_id, seconds, user_arg, cb);
             }
         }
     }
@@ -125,7 +125,7 @@ private:
                                bool again = false;
                                cb(this, user_arg, &again);
                                if (again) {
-                                   add_task_on_loop_recursive(seconds, user_arg, std::move(cb));
+                                   add_task_on_loop_recursive(seconds, user_arg, cb);
                                }
                            });
     }
@@ -140,7 +140,7 @@ private:
                                        bool again = false;
                                        cb(this, channel_map_[channel_id], user_arg, &again);
                                        if (again) {
-                                           add_task_on_channel_recursive(channel_id, seconds, user_arg, std::move(cb));
+                                           add_task_on_channel_recursive(channel_id, seconds, user_arg, cb);
                                        }
                                    }
                                });
