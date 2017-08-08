@@ -6,7 +6,6 @@ set(EVENTLOOP_SOURCE_FILES
         tool/ExecuteState.h
         tool/Likely.h
         tool/SimpleEncode.h
-        tool/Singleton.hpp
         tool/SocketHelp.c
         tool/SocketHelp.h
         tool/StreamBuffer.cpp

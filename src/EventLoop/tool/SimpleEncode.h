@@ -6,8 +6,8 @@
 #ifndef EVENTLOOP_TOOL_SIMPLEENCODE_H
 #define EVENTLOOP_TOOL_SIMPLEENCODE_H
 
-#include <assert.h>
-#include <stddef.h>
+#include <cassert>
+#include <cstddef>
 #include <string>
 
 #define KEY "90~!@#12345ZXCVBNMLKJHGFD678$%^&*()_+`-=:zxcvbnm<>?qwertyuiop[]asdfghjkl;'SAPOIUYTREWQ"
