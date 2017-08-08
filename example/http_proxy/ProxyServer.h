@@ -21,7 +21,7 @@ struct ChannelContext {
     ChannelId other_side;
 };
 
-class ProxyServer {
+class ProxyServer{
 private:
 
     static void proxy_server_forward_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelId events);

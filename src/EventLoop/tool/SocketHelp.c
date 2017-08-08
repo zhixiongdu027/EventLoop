@@ -40,10 +40,8 @@ int tcp_connect(const char *host, unsigned short port) {
         if (connect(sock_fd, res->ai_addr, res->ai_addrlen) == 0) {
             break;
         }
-        else {
-            close(sock_fd);
-            sock_fd = -1;
-        }
+        close(sock_fd);
+        sock_fd = -1;
     };
 
     freeaddrinfo(ressave);
@@ -51,11 +49,8 @@ int tcp_connect(const char *host, unsigned short port) {
 }
 
 int create_tcp_listen(unsigned short port, int reuse) {
-    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int socket_fd = socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
     if (socket_fd < 0) {
-        return -1;
-    }
-    if (fcntl(socket_fd, F_SETFL, O_NONBLOCK)) {
         return -1;
     }
 
@@ -108,19 +103,16 @@ ExecuteState tcp_nonblock_connect(const char *host, unsigned short port, int *so
 
     ExecuteState return_value = ExecuteError;
     if (res != NULL) {
-        *sock_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-        if (*sock_fd < 0 || fcntl(*sock_fd, F_SETFL, O_NONBLOCK) < 0) {
+        *sock_fd = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol);
+        if (*sock_fd < 0) {
             close(*sock_fd);
-        }
-        else {
+        } else {
             int connect_res = connect(*sock_fd, res->ai_addr, res->ai_addrlen);
             if (connect_res == -1 && errno == EINPROGRESS) {
                 return_value = ExecuteProcessing;
-            }
-            else if (connect_res == 0) {
+            } else if (connect_res == 0) {
                 return_value = ExecuteDone;
-            }
-            else {
+            } else {
                 close(*sock_fd);
                 *sock_fd = -1;
                 return_value = ExecuteError;
@@ -185,10 +177,10 @@ int udp_connect(const char *host, unsigned short port) {
         if (connect(sock_fd, res->ai_addr, res->ai_addrlen) == 0) {
             break;
         }
-        else {
-            close(sock_fd);
-            sock_fd = -1;
-        }
+
+        close(sock_fd);
+        sock_fd = -1;
+
     };
 
     freeaddrinfo(ressave);

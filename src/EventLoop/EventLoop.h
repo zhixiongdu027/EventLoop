@@ -15,11 +15,6 @@
 
 class EventLoop : public NonCopyable {
 public:
-
-    EventLoop() : init_status_(INIT), epoll_(-1), timer_(-1), quit_(true) {
-        memset(&context, 0x00, sizeof(context));
-    }
-
     ~EventLoop();
 
     ChannelPtr &add_channel(int fd, bool is_socket, bool is_nonblock, ssize_t lifetime, ChannelCallback io_event_cb);
@@ -71,12 +66,10 @@ public:
                                    size_t channel_lives = channel_lives_map_[channel_id];
                                    if (UNLIKELY(channel_lives == 0)) {
                                        channel_lives_map_.erase(channel_id);
-                                   }
-                                   else if (channel_lives_map_[channel_id] == 1) {
+                                   } else if (channel_lives_map_[channel_id] == 1) {
                                        channel_lives_map_.erase(channel_id);
                                        channel_event_map_[channel_id] |= EVENT_TIMEOVER;
-                                   }
-                                   else {
+                                   } else {
                                        channel_lives_map_[channel_id]--;
                                    }
                                }
@@ -102,8 +95,7 @@ private:
     inline void init() {
         if (create_epoll_fd() < 0 || create_timer_fd() < 0 || add_timer_channel() < 0) {
             init_status_ = ERROR;
-        }
-        else {
+        } else {
             init_status_ = SUCCESS;
             quit_ = false;
         }
@@ -156,18 +148,18 @@ private:
     }
 
 public:
-    Context context;
-    ContextDeleter context_deleter;
+    Context context{};
+    ContextDeleter context_deleter{};
 private:
-    INIT_STATUS init_status_;
-    int epoll_;
-    int timer_;
-    bool quit_;
-    std::unordered_map<ChannelId, ChannelPtr> channel_map_;
-    std::unordered_map<ChannelId, ChannelEvent> channel_event_map_;
-    std::unordered_map<ChannelId, size_t> channel_lives_map_;
-    TaskWheel task_wheel_;
-    epoll_event reg_event_;
+    INIT_STATUS init_status_{INIT};
+    int epoll_{-1};
+    int timer_{-1};
+    bool quit_{true};
+    std::unordered_map<ChannelId, ChannelPtr> channel_map_{};
+    std::unordered_map<ChannelId, ChannelEvent> channel_event_map_{};
+    std::unordered_map<ChannelId, size_t> channel_lives_map_{};
+    TaskWheel task_wheel_{};
+    epoll_event reg_event_{};
     static ChannelPtr null_channel_ptr;
 };
 

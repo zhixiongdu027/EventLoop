@@ -1,8 +1,8 @@
-#include <stdio.h>
+#include <cstdio>
 #include "EventLoop/EventLoop.h"
 #include "EventLoop/tool/SocketHelp.h"
 
-void channel_task(EventLoopPtr &, ChannelPtr &channel_ptr, void *, bool *again) {
+void channel_task(EventLoopPtr & /*unused*/, ChannelPtr &channel_ptr, void * /*unused*/, bool *again) {
     StreamBuffer *buffer = channel_ptr->get_read_buffer();
     channel_ptr->send(buffer->peek(), buffer->peek_able());
     *again = true;

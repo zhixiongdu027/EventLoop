@@ -31,8 +31,7 @@ void Channel::send_to_normal() {
                 goto write_begin_label;
             }
             channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SEND_ERR);
-        }
-        else if (UNLIKELY(!write_buffer_.empty())) {
+        } else if (UNLIKELY(!write_buffer_.empty())) {
             channel_event_map_[id()] |= TODO_REGO;
         }
     }
@@ -53,8 +52,7 @@ void Channel::send_to_normal(const void *data, size_t len) noexcept {
             goto write_begin_label;
         }
         channel_event_map_[id()] |= (errno == EAGAIN ? TODO_REGO : EVENT_SEND_ERR);
-    }
-    else if (static_cast<size_t >(write_res) < len) {
+    } else if (static_cast<size_t >(write_res) < len) {
         write_buffer_.append(static_cast<const char *>(data) + write_res, len - write_res);
         channel_event_map_[id()] |= TODO_REGO;
     }
@@ -67,15 +65,12 @@ void Channel::send_to_socket() {
         if (UNLIKELY(write_res < 0)) {
             if (errno == EINTR) {
                 goto write_begin_label;
-            }
-            else if (errno == EAGAIN) {
+            } else if (errno == EAGAIN) {
                 channel_event_map_[id()] |= TODO_REGO;
-            }
-            else {
+            } else {
                 channel_event_map_[id()] |= EVENT_SEND_ERR;
             }
-        }
-        else {
+        } else {
             write_buffer_.discard(static_cast<size_t>(write_res));
             if (!write_buffer_.empty()) {
                 channel_event_map_[id()] |= TODO_REGO;
@@ -91,45 +86,40 @@ void Channel::send_to_socket(const void *data, size_t len) noexcept {
         write_buffer_.append(data, len);
         return;
     }
-    else {
-        iovec vec[2];
-        vec[0].iov_base = write_buffer_.peek();
-        vec[0].iov_len = write_buffer_.peek_able();
-        vec[1].iov_base = (void *) data;
-        vec[1].iov_len = len;
 
-        msghdr msg;
-        memset(&msg, 0, sizeof(msghdr));
-        msg.msg_iov = &vec[0];
-        msg.msg_iovlen = 2;
+    iovec vec[2];
+    vec[0].iov_base = write_buffer_.peek();
+    vec[0].iov_len = write_buffer_.peek_able();
+    vec[1].iov_base = (void *) data;
+    vec[1].iov_len = len;
 
-        write_begin_able:
-        ssize_t write_res = sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
-        if (UNLIKELY(write_res < 0)) {
-            if (errno == EINTR) {
-                goto write_begin_able;
-            }
-            else if (errno == EAGAIN) {
-                write_buffer_.append(data, len);
-                channel_event_map_[id()] |= TODO_REGO;
-            }
-            else {
-                channel_event_map_[id()] |= EVENT_SEND_ERR;
-            }
-        }
-        else if (static_cast<size_t >(write_res) == write_buffer_.peek_able() + len) {
-            write_buffer_.discard_all();
-        }
-        else if (static_cast<size_t >(write_res) > write_buffer_.peek_able()) {
-            size_t used_data = write_res - write_buffer_.peek_able();
-            write_buffer_.discard_all();
-            write_buffer_.append(static_cast<const char *>(data) + used_data, len - used_data);
-            channel_event_map_[id()] |= TODO_REGO;
-        }
-        else {
-            write_buffer_.discard(static_cast<size_t >(write_res));
+    msghdr msg;
+    memset(&msg, 0, sizeof(msghdr));
+    msg.msg_iov = &vec[0];
+    msg.msg_iovlen = 2;
+
+    write_begin_able:
+    ssize_t write_res = sendmsg(fd(), &msg, MSG_DONTWAIT | MSG_NOSIGNAL);
+    if (UNLIKELY(write_res < 0)) {
+        if (errno == EINTR) {
+            goto write_begin_able;
+        } else if (errno == EAGAIN) {
             write_buffer_.append(data, len);
             channel_event_map_[id()] |= TODO_REGO;
+        } else {
+            channel_event_map_[id()] |= EVENT_SEND_ERR;
         }
+    } else if (static_cast<size_t >(write_res) == write_buffer_.peek_able() + len) {
+        write_buffer_.discard_all();
+    } else if (static_cast<size_t >(write_res) > write_buffer_.peek_able()) {
+        size_t used_data = write_res - write_buffer_.peek_able();
+        write_buffer_.discard_all();
+        write_buffer_.append(static_cast<const char *>(data) + used_data, len - used_data);
+        channel_event_map_[id()] |= TODO_REGO;
+    } else {
+        write_buffer_.discard(static_cast<size_t >(write_res));
+        write_buffer_.append(data, len);
+        channel_event_map_[id()] |= TODO_REGO;
     }
+
 }

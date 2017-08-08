@@ -5,15 +5,18 @@
 #include "ProxyServer.h"
 #include "EventLoop/tool/SocketHelp.h"
 
-void ProxyServer::proxy_server_forward_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelId events) {
+void ProxyServer::proxy_server_forward_cb(EventLoopPtr &loop_ptr, ChannelPtr &channel_ptr, ChannelId events)
+{
     ChannelPtr &client_ptr = loop_ptr->get_channel(channel_ptr->context.u32);
-    if (client_ptr != nullptr && events == EVENT_IN && channel_ptr->read() > 0) {
+    if (client_ptr != nullptr && events == EVENT_IN && channel_ptr->read() > 0)
+    {
         loop_ptr->add_channel_lifetime(channel_ptr->id(), 60);
         StreamBuffer *buffer = channel_ptr->get_read_buffer();
         client_ptr->send(buffer->peek(), buffer->peek_able());
         buffer->discard_all();
     }
-    else {
+    else
+    {
         loop_ptr->erase_channel(channel_ptr->context.u32);
         loop_ptr->erase_channel(channel_ptr->id());
     }
